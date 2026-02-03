@@ -242,9 +242,15 @@
                     <select id="edit-currency" class="w-1/3 p-3 bg-slate-50 border-2 rounded-xl font-bold text-sm outline-none focus:border-indigo-500"></select>
                     <input type="number" id="edit-rate" class="w-2/3 p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500" placeholder="Fee/Class">
                 </div>
-                <div class="flex flex-col sm:flex-row gap-2">
-                     <div class="w-full sm:w-1/2"><label class="text-[9px] text-slate-400 font-bold ml-1">Start Date</label><input type="date" id="edit-start-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500"></div>
-                     <div class="w-full sm:w-1/2"><label class="text-[9px] text-slate-400 font-bold ml-1">Session Plan</label><input type="number" id="edit-total-sessions" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500"></div>
+                <div class="flex flex-col gap-2">
+                     <div>
+                         <label class="text-[9px] text-slate-400 font-bold ml-1">Start Date</label>
+                         <input type="date" id="edit-start-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
+                     </div>
+                     <div>
+                         <label class="text-[9px] text-slate-400 font-bold ml-1">Session Plan</label>
+                         <input type="number" id="edit-total-sessions" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
+                     </div>
                 </div>
                 <select id="edit-billing-freq" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
                     <option value="Monthly">Bill Monthly</option>
@@ -295,12 +301,12 @@
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Description</label>
                     <input type="text" id="edit-inv-desc" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
                 </div>
-                <div class="flex gap-2">
-                    <div class="w-1/2">
+                <div class="flex flex-col gap-2">
+                    <div>
                         <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Date</label>
                         <input type="date" id="edit-inv-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500">
                     </div>
-                    <div class="w-1/2">
+                    <div>
                          <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Total Amount</label>
                          <input type="number" id="edit-inv-total" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
                     </div>
@@ -317,7 +323,7 @@
         </div>
     </div>
 
-    <!-- MODAL: RECORD PAYMENT (Higher Z-Index) -->
+    <!-- MODAL: RECORD PAYMENT -->
     <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-[90] backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box">
             <h3 class="text-lg font-black text-slate-800">Record Payment</h3>
@@ -386,14 +392,8 @@
         <div class="bg-white w-full max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box">
             <h3 class="text-lg font-black text-slate-800">Log Session</h3>
             <div class="space-y-3">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Date</label>
-                    <input type="date" id="session-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Topic / Details</label>
-                    <textarea id="session-topic" placeholder="What did you teach?" rows="3" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500"></textarea>
-                </div>
+                <input type="date" id="session-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
+                <textarea id="session-topic" placeholder="What did you teach?" rows="3" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500"></textarea>
             </div>
             <div class="flex gap-2">
                 <button onclick="closeModal('add-session-modal')" class="flex-1 py-3 font-bold text-slate-400">Cancel</button>
@@ -434,9 +434,7 @@
             <table class="w-full text-left text-sm" id="doc-table">
                 <thead>
                     <tr class="border-b-2 border-slate-100 text-slate-400 uppercase text-[10px]">
-                        <th class="py-2">Description</th>
-                        <th class="py-2">Remark</th>
-                        <th class="py-2 text-right">Amount</th>
+                        <!-- Headers populated dynamically -->
                     </tr>
                 </thead>
                 <tbody id="doc-items" class="text-slate-600 font-medium"></tbody>
@@ -915,27 +913,56 @@
             document.getElementById('doc-parent').innerText = data.student.parent;
             document.getElementById('doc-student').innerText = data.student.name;
             document.getElementById('doc-grade').innerText = data.student.grade || '';
-            const tbody = document.getElementById('doc-items'); tbody.innerHTML = '';
-            data.items.forEach(i => { tbody.innerHTML += `<tr class="border-b border-slate-50"><td class="py-3">${i.desc}</td><td class="py-3 text-xs text-slate-400"></td><td class="py-3 text-right">${typeof i.amount === 'number' ? format(i.amount, data.currency || data.student.currency) : ''}</td></tr>`; });
             
-            // Total handling
-            const totalText = typeof data.total === 'number' ? format(data.total, data.currency || data.student.currency) : '';
-            document.getElementById('doc-total').innerText = totalText;
-            
-            const rowPaid = document.getElementById('row-paid');
-            const rowBal = document.getElementById('row-balance');
-            const curr = data.currency || data.student.currency;
+            // Dynamic Table Headers
+            const thead = document.querySelector('#doc-table thead tr');
+            const tbody = document.getElementById('doc-items'); 
+            tbody.innerHTML = '';
 
-            if(data.paid > 0) {
-                rowPaid.classList.remove('hidden'); rowBal.classList.remove('hidden');
-                document.getElementById('doc-paid').innerText = format(data.paid, curr);
-                document.getElementById('doc-balance').innerText = format(data.total - data.paid, curr);
-            } else { rowPaid.classList.add('hidden'); rowBal.classList.add('hidden'); }
+            if (data.type === 'log') {
+                thead.innerHTML = `<th class="py-2">Session Details</th>`;
+                data.items.forEach(i => { 
+                    tbody.innerHTML += `<tr class="border-b border-slate-50"><td class="py-3">${i.desc}</td></tr>`; 
+                });
+                // Hide Footer Totals
+                document.getElementById('doc-footer').classList.add('hidden');
+            } else {
+                thead.innerHTML = `
+                    <th class="py-2">Description</th>
+                    <th class="py-2">Remark</th>
+                    <th class="py-2 text-right">Amount</th>`;
+                
+                data.items.forEach(i => { 
+                    tbody.innerHTML += `
+                    <tr class="border-b border-slate-50">
+                        <td class="py-3">${i.desc}</td>
+                        <td class="py-3 text-xs text-slate-400"></td> 
+                        <td class="py-3 text-right">${typeof i.amount === 'number' ? format(i.amount, data.currency || data.student.currency) : ''}</td>
+                    </tr>`; 
+                });
+                document.getElementById('doc-footer').classList.remove('hidden');
+            }
+            
+            // Total handling (Only for financial)
+            if (data.type !== 'log') {
+                const totalText = typeof data.total === 'number' ? format(data.total, data.currency || data.student.currency) : '';
+                document.getElementById('doc-total').innerText = totalText;
+                
+                const rowPaid = document.getElementById('row-paid');
+                const rowBal = document.getElementById('row-balance');
+                const curr = data.currency || data.student.currency;
+
+                if(data.paid > 0) {
+                    rowPaid.classList.remove('hidden'); rowBal.classList.remove('hidden');
+                    document.getElementById('doc-paid').innerText = format(data.paid, curr);
+                    document.getElementById('doc-balance').innerText = format(data.total - data.paid, curr);
+                } else { rowPaid.classList.add('hidden'); rowBal.classList.add('hidden'); }
+            }
 
             const txnBox = document.getElementById('doc-txn-info');
             if(data.inv && data.inv.txnDetails && data.inv.txnDetails.length > 0) {
                 const lastTxn = data.inv.txnDetails[data.inv.txnDetails.length - 1];
-                txnBox.innerHTML = `<strong>Last Payment:</strong> ${format(lastTxn.amount, curr)} via ${lastTxn.mode} (${lastTxn.date})`;
+                txnBox.innerHTML = `<strong>Last Payment:</strong> ${format(lastTxn.amount, data.currency || data.student.currency)} via ${lastTxn.mode} (${lastTxn.date})`;
                 txnBox.classList.remove('hidden');
             } else { txnBox.classList.add('hidden'); }
 
@@ -955,18 +982,15 @@
                 bank.classList.remove('hidden');
                 note.innerText = "Please clear the dues for the upcoming period.";
                 docSubtitle.innerText = "Billed To";
-                document.getElementById('doc-footer').classList.remove('hidden'); // Show totals
             } else if (data.type === 'receipt') {
                 bank.classList.add('hidden');
                 note.innerText = "Payment Received. Thank you!";
                 docSubtitle.innerText = "Received From";
-                document.getElementById('doc-footer').classList.remove('hidden'); // Show totals
             } else {
                 // Log Report
                 bank.classList.add('hidden');
                 note.innerText = `Details of sessions ${data.periodText || ''}.`;
                 docSubtitle.innerText = "Report For";
-                document.getElementById('doc-footer').classList.add('hidden'); // Hide totals for log
             }
             document.getElementById('doc-modal').classList.remove('hidden');
         }
@@ -1075,53 +1099,6 @@
                 saveSettings();
                 renderHome(); // Update total pending calculations
             }
-        }
-
-        // --- EDIT STUDENT ---
-        function openEditStudentModal() {
-            const s = students.find(st => st.id === currentStudentId);
-            if (!s) return;
-
-            document.getElementById('edit-name').value = s.name;
-            document.getElementById('edit-grade').value = s.grade || '';
-            document.getElementById('edit-parent').value = s.parent;
-            document.getElementById('edit-phone').value = s.phone || '';
-            document.getElementById('edit-rate').value = s.rate;
-            document.getElementById('edit-start-date').value = s.startDate || '';
-            document.getElementById('edit-total-sessions').value = s.totalSessions || 8;
-            document.getElementById('edit-billing-freq').value = s.billingFreq || 'Monthly';
-
-            // Populate Currency Dropdown
-            const sel = document.getElementById('edit-currency'); 
-            sel.innerHTML='';
-            Object.keys(settings.currencies).forEach(c=> {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.innerText = c;
-                if (c === s.currency) opt.selected = true;
-                sel.appendChild(opt);
-            });
-
-            document.getElementById('edit-student-modal').classList.replace('hidden', 'flex');
-        }
-
-        function saveStudentDetails() {
-            const s = students.find(st => st.id === currentStudentId);
-            if (!s) return;
-
-            s.name = document.getElementById('edit-name').value;
-            s.grade = document.getElementById('edit-grade').value;
-            s.parent = document.getElementById('edit-parent').value;
-            s.phone = document.getElementById('edit-phone').value;
-            s.rate = parseFloat(document.getElementById('edit-rate').value);
-            s.currency = document.getElementById('edit-currency').value;
-            s.startDate = document.getElementById('edit-start-date').value;
-            s.totalSessions = parseInt(document.getElementById('edit-total-sessions').value);
-            s.billingFreq = document.getElementById('edit-billing-freq').value;
-
-            save();
-            closeModal('edit-student-modal');
-            renderDetails();
         }
 
         // --- ACTIONS ---
