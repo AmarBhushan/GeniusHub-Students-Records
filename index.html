@@ -41,9 +41,12 @@
     <!-- APP HEADER -->
     <header class="bg-indigo-600 p-6 pt-12 pb-8 rounded-b-[2.5rem] shadow-xl text-white sticky top-0 z-40">
         <div class="flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-black tracking-tight">Student Records</h1>
-                <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">GeniusHub Classes</p>
+            <div class="flex items-center gap-3">
+                <img id="header-logo" src="" class="w-12 h-12 rounded-full bg-white object-contain p-0.5 hidden shadow-md">
+                <div>
+                    <h1 class="text-2xl font-black tracking-tight">Student Records</h1>
+                    <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">GeniusHub Classes</p>
+                </div>
             </div>
             <div class="flex gap-2">
                 <button onclick="openSettingsModal()" class="bg-white/20 p-2 rounded-xl backdrop-blur-sm active:scale-95 transition-transform">
@@ -100,16 +103,14 @@
         <div class="bg-white p-5 rounded-[2rem] shadow-lg border border-slate-100 text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-br from-indigo-500 to-purple-600 opacity-10"></div>
             
+            <button onclick="openEditStudentModal()" class="absolute top-4 right-4 z-20 bg-white/50 p-2 rounded-full text-indigo-700 hover:bg-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            </button>
+
             <div class="relative z-10">
                 <div class="flex justify-between items-start">
                      <div class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">Started: <span id="detail-start">--</span></div>
-                     
-                     <div class="flex flex-col items-end gap-2">
-                         <div class="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg uppercase" id="detail-freq">--</div>
-                         <button onclick="openEditStudentModal()" class="text-[10px] font-bold text-indigo-700 bg-white/90 px-2 py-1.5 rounded-lg shadow-sm flex items-center gap-1 active:scale-95 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg> Edit
-                         </button>
-                     </div>
+                     <div class="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg uppercase" id="detail-freq">--</div>
                 </div>
                 
                 <div class="w-20 h-20 bg-indigo-100 rounded-full mx-auto flex items-center justify-center text-3xl mb-3 mt-1 shadow-inner">🎓</div>
@@ -202,9 +203,9 @@
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Admission Info</label>
                     <!-- Stacked for Mobile Safety -->
                     <div class="flex flex-col gap-2">
-                         <div>
+                         <div class="min-w-0">
                              <label class="text-[9px] text-slate-400 font-bold ml-1">Start Date</label>
-                             <input type="date" id="new-start-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
+                             <input type="date" id="new-start-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 max-w-full">
                          </div>
                          <div>
                              <label class="text-[9px] text-slate-400 font-bold ml-1">Session Plan (Total)</label>
@@ -253,9 +254,9 @@
                     <input type="number" id="edit-rate" class="w-2/3 p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500" placeholder="Fee/Class">
                 </div>
                 <div class="flex flex-col gap-2">
-                     <div>
+                     <div class="min-w-0">
                          <label class="text-[9px] text-slate-400 font-bold ml-1">Start Date</label>
-                         <input type="date" id="edit-start-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
+                         <input type="date" id="edit-start-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 max-w-full">
                      </div>
                      <div>
                          <label class="text-[9px] text-slate-400 font-bold ml-1">Session Plan</label>
@@ -313,9 +314,9 @@
                 </div>
                 <!-- Stacked Vertically to avoid overlap -->
                 <div class="flex flex-col gap-2">
-                    <div>
+                    <div class="min-w-0">
                         <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Date</label>
-                        <input type="date" id="edit-inv-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500">
+                        <input type="date" id="edit-inv-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500 max-w-full">
                     </div>
                     <div>
                          <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Total Amount</label>
@@ -345,7 +346,9 @@
                 </div>
                 <div class="flex flex-col gap-2">
                     <input type="text" id="pay-mode" placeholder="Mode (GPay, etc.)" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500">
-                    <input type="date" id="pay-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500">
+                    <div class="min-w-0">
+                        <input type="date" id="pay-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500 max-w-full">
+                    </div>
                 </div>
                 <input type="text" id="pay-txn-id" placeholder="Transaction ID / Ref No." class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500">
             </div>
@@ -362,6 +365,19 @@
             <div class="flex justify-between items-center"><h3 class="text-lg font-black text-slate-800">Settings</h3><button onclick="closeModal('settings-modal')" class="text-slate-400 font-bold">✕</button></div>
             <div class="space-y-3 flex-grow overflow-y-auto custom-scrollbar">
                 
+                <!-- Organization Logo -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                     <label class="text-[10px] font-bold text-slate-400 uppercase">Organization Logo</label>
+                     <p class="text-[10px] text-slate-500 mb-2 leading-tight">Upload logo for invoices & header.</p>
+                     <input type="file" id="logo-upload" accept="image/*" class="w-full text-xs" onchange="handleLogoUpload(this)">
+                     <div id="logo-preview-container" class="mt-2 hidden">
+                         <img id="logo-preview" class="h-10 object-contain">
+                         <button onclick="clearLogo()" class="text-red-500 text-xs font-bold mt-1">Remove Logo</button>
+                     </div>
+                </div>
+
+                <div class="h-px bg-slate-100 my-2"></div>
+
                 <!-- Data Management Section -->
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Data Backup</label>
@@ -403,9 +419,9 @@
         <div class="bg-white w-[90%] max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box">
             <h3 class="text-lg font-black text-slate-800">Log Session</h3>
             <div class="space-y-3">
-                <div>
+                <div class="min-w-0">
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Date</label>
-                    <input type="date" id="session-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
+                    <input type="date" id="session-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500 max-w-full">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Topic / Details</label>
@@ -424,9 +440,12 @@
         <!-- Header -->
         <div class="bg-indigo-600 p-8 text-white print-padding">
             <div class="flex justify-between items-start">
-                <div>
-                    <h1 class="text-3xl font-black tracking-tighter" id="doc-title">INVOICE</h1>
-                    <p class="text-indigo-200 text-sm font-bold uppercase tracking-widest">GeniusHub Classes</p>
+                <div class="flex items-center gap-3">
+                    <img id="doc-logo" src="" class="w-16 h-16 rounded-lg bg-white object-contain p-1 hidden shadow-lg">
+                    <div>
+                        <h1 class="text-3xl font-black tracking-tighter" id="doc-title">INVOICE</h1>
+                        <p class="text-indigo-200 text-sm font-bold uppercase tracking-widest">GeniusHub Classes</p>
+                    </div>
                 </div>
                 <div class="text-right">
                     <p class="text-sm opacity-80" id="doc-date">--</p>
@@ -483,23 +502,22 @@
             <div id="bank-details" class="mt-4 p-4 bg-slate-50 rounded-xl text-xs text-left hidden border border-slate-100 font-mono text-slate-600 whitespace-pre-line"></div>
         </div>
         <!-- Action Bar -->
-        <div class="bg-slate-50 p-4 flex flex-col gap-2 no-print border-t fixed bottom-0 w-full shadow-lg">
+        <div class="bg-slate-50 p-4 flex flex-col gap-2 no-print border-t fixed bottom-0 w-full shadow-lg safe-bottom">
             
             <button onclick="sendReminder()" id="btn-reminder" class="hidden w-full py-2 bg-orange-100 text-orange-700 text-xs font-bold rounded-lg border border-orange-200">Send Reminder 1</button>
 
-            <!-- Responsive Button Grid -->
-            <div class="grid grid-cols-2 sm:flex sm:flex-row gap-2 w-full">
-                <button onclick="closeDoc()" class="px-3 py-2 font-bold text-slate-500 bg-white border rounded-lg text-xs">Close</button>
-                <button onclick="openEditInvoice()" id="btn-edit-inv" class="hidden px-3 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold text-xs border border-blue-100">Edit</button>
+            <!-- Responsive Button Scroll Row -->
+            <div class="flex overflow-x-auto gap-2 w-full pb-1 hide-scrollbar">
+                <button onclick="closeDoc()" class="flex-none px-4 py-2 font-bold text-slate-500 bg-white border rounded-lg text-xs whitespace-nowrap">Close</button>
+                <button onclick="openEditInvoice()" id="btn-edit-inv" class="hidden flex-none px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold text-xs border border-blue-100 whitespace-nowrap">Edit</button>
                 
-                <button onclick="shareWhatsApp()" class="px-3 py-2 bg-green-500 text-white rounded-lg font-bold shadow-sm text-xs">WhatsApp</button>
-                <button onclick="window.print()" class="px-3 py-2 bg-indigo-600 text-white rounded-lg font-bold shadow-sm text-xs">PDF</button>
+                <button onclick="shareWhatsApp()" class="flex-none px-4 py-2 bg-green-500 text-white rounded-lg font-bold shadow-sm text-xs whitespace-nowrap">WhatsApp</button>
+                <button onclick="window.print()" class="flex-none px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold shadow-sm text-xs whitespace-nowrap">PDF</button>
+                <button onclick="openPaymentModal()" id="btn-record-pay" class="hidden flex-none px-4 py-2 bg-slate-800 text-white rounded-lg font-bold shadow-md text-xs whitespace-nowrap border-2 border-slate-700">Record Payment</button>
                 
-                <div id="btn-delete-inv" class="hidden col-span-2 sm:col-auto">
-                    <button onclick="customConfirm('Delete this receipt permanently?', deleteCurrentInvoice)" class="w-full px-3 py-2 text-red-500 border border-red-100 rounded-lg font-bold text-xs bg-red-50">Delete</button>
+                <div id="btn-delete-inv" class="hidden flex-none">
+                    <button onclick="customConfirm('Delete this receipt permanently?', deleteCurrentInvoice)" class="px-4 py-2 text-red-500 border border-red-100 rounded-lg font-bold text-xs bg-red-50 whitespace-nowrap">Delete</button>
                 </div>
-                
-                <button onclick="openPaymentModal()" id="btn-record-pay" class="hidden col-span-2 sm:col-auto px-3 py-2 bg-slate-800 text-white rounded-lg font-bold shadow-md text-xs">Record Payment</button>
             </div>
         </div>
     </div>
@@ -522,7 +540,8 @@
         let defaultBankDetails = "Bank Name: HDFC Bank\nAccount No: 123456789\nIFSC Code: HDFC000123\nUPI / GPay: 9876543210";
         let settings = JSON.parse(localStorage.getItem('gh_settings')) || {
             currencies: { 'INR': 1, 'USD': 84, 'CAD': 62, 'AUD': 55, 'GBP': 105, 'EUR': 90 },
-            bankDetails: defaultBankDetails
+            bankDetails: defaultBankDetails,
+            logo: null
         };
         if (!settings.bankDetails) settings.bankDetails = defaultBankDetails;
 
@@ -534,7 +553,7 @@
 
         // --- CORE ---
         function save() { localStorage.setItem('gh_students', JSON.stringify(students)); renderHome(); }
-        function saveSettings() { localStorage.setItem('gh_settings', JSON.stringify(settings)); }
+        function saveSettings() { localStorage.setItem('gh_settings', JSON.stringify(settings)); renderLogo(); }
         function format(num, curr='INR') { return new Intl.NumberFormat('en-US', { style:'currency', currency:curr, maximumFractionDigits:0 }).format(num); }
         
         function customConfirm(msg, callback) {
@@ -542,6 +561,67 @@
             confirmCallback = callback;
             document.getElementById('confirm-modal').classList.replace('hidden', 'flex');
             document.getElementById('confirm-yes-btn').onclick = () => { callback(); closeModal('confirm-modal'); };
+        }
+
+        // --- LOGO HANDLING ---
+        function handleLogoUpload(input) {
+            const file = input.files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Resize image using Canvas to save storage space
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Max dimension 200px
+                    const MAX_SIZE = 200;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                    } else {
+                        if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // Compress
+                    settings.logo = dataUrl;
+                    saveSettings();
+                    renderLogo();
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function clearLogo() {
+            settings.logo = null;
+            saveSettings();
+            renderLogo();
+        }
+
+        function renderLogo() {
+            const headerLogo = document.getElementById('header-logo');
+            const docLogo = document.getElementById('doc-logo');
+            const preview = document.getElementById('logo-preview');
+            const previewContainer = document.getElementById('logo-preview-container');
+
+            if(settings.logo) {
+                headerLogo.src = settings.logo; headerLogo.classList.remove('hidden');
+                docLogo.src = settings.logo; docLogo.classList.remove('hidden');
+                preview.src = settings.logo; previewContainer.classList.remove('hidden');
+            } else {
+                headerLogo.classList.add('hidden');
+                docLogo.classList.add('hidden');
+                previewContainer.classList.add('hidden');
+            }
         }
 
         // --- BACKUP & RESTORE ---
@@ -1121,53 +1201,6 @@
             }
         }
 
-        // --- EDIT STUDENT ---
-        function openEditStudentModal() {
-            const s = students.find(st => st.id === currentStudentId);
-            if (!s) return;
-
-            document.getElementById('edit-name').value = s.name;
-            document.getElementById('edit-grade').value = s.grade || '';
-            document.getElementById('edit-parent').value = s.parent;
-            document.getElementById('edit-phone').value = s.phone || '';
-            document.getElementById('edit-rate').value = s.rate;
-            document.getElementById('edit-start-date').value = s.startDate || '';
-            document.getElementById('edit-total-sessions').value = s.totalSessions || 8;
-            document.getElementById('edit-billing-freq').value = s.billingFreq || 'Monthly';
-
-            // Populate Currency Dropdown
-            const sel = document.getElementById('edit-currency'); 
-            sel.innerHTML='';
-            Object.keys(settings.currencies).forEach(c=> {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.innerText = c;
-                if (c === s.currency) opt.selected = true;
-                sel.appendChild(opt);
-            });
-
-            document.getElementById('edit-student-modal').classList.replace('hidden', 'flex');
-        }
-
-        function saveStudentDetails() {
-            const s = students.find(st => st.id === currentStudentId);
-            if (!s) return;
-
-            s.name = document.getElementById('edit-name').value;
-            s.grade = document.getElementById('edit-grade').value;
-            s.parent = document.getElementById('edit-parent').value;
-            s.phone = document.getElementById('edit-phone').value;
-            s.rate = parseFloat(document.getElementById('edit-rate').value);
-            s.currency = document.getElementById('edit-currency').value;
-            s.startDate = document.getElementById('edit-start-date').value;
-            s.totalSessions = parseInt(document.getElementById('edit-total-sessions').value);
-            s.billingFreq = document.getElementById('edit-billing-freq').value;
-
-            save();
-            closeModal('edit-student-modal');
-            renderDetails();
-        }
-
         // --- ACTIONS ---
         function addStudent() {
             const name = document.getElementById('new-name').value;
@@ -1208,6 +1241,7 @@
         function saveBankDetails() { settings.bankDetails = document.getElementById('setting-bank-details').value; saveSettings(); alert('Saved'); }
 
         renderHome();
+        renderLogo(); // Initialize logo on load
     </script>
 </body>
 </html>
