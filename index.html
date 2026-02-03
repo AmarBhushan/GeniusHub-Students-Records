@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#4f46e5">
 
-    <!-- UPDATED LOGO: Graduation Cap (SVG Data URI) -->
+    <!-- Graduation Cap Logo -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%234f46e5'/%3E%3Cpath d='M448 208L256 120 64 208l192 88 192-88zM224 354v-70l-96-44v86c0 18 43 32 96 32s96-14 96-32v-86l-96 44v70z' fill='white'/%3E%3Cpath d='M428 208v100c0 10-20 20-20 20s-20-10-20-20V208' fill='none' stroke='white' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%234f46e5'/%3E%3Cpath d='M448 208L256 120 64 208l192 88 192-88zM224 354v-70l-96-44v86c0 18 43 32 96 32s96-14 96-32v-86l-96 44v70z' fill='white'/%3E%3Cpath d='M428 208v100c0 10-20 20-20 20s-20-10-20-20V208' fill='none' stroke='white' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
 
@@ -161,10 +161,22 @@
              </div>
         </div>
 
-        <button onclick="deleteStudent()" class="w-full py-3 text-red-400 text-xs font-bold opacity-60">Remove Student</button>
+        <button onclick="customConfirm('Remove this student permanently?', deleteStudent)" class="w-full py-3 text-red-400 text-xs font-bold opacity-60">Remove Student</button>
     </div>
 
-    <!-- MODAL: ADD STUDENT -->
+    <!-- CUSTOM CONFIRM MODAL -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-[100] backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs rounded-[2rem] p-6 text-center shadow-2xl modal-box">
+            <h3 class="text-lg font-black text-slate-800 mb-2">Are you sure?</h3>
+            <p id="confirm-msg" class="text-sm text-slate-500 mb-6">This action cannot be undone.</p>
+            <div class="flex gap-2">
+                <button onclick="closeModal('confirm-modal')" class="flex-1 py-3 font-bold text-slate-400 bg-slate-50 rounded-xl">Cancel</button>
+                <button id="confirm-yes-btn" class="flex-1 py-3 font-bold text-white bg-red-500 rounded-xl shadow-lg">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD STUDENT (Layout Fixed) -->
     <div id="add-student-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box h-[80vh] overflow-y-auto custom-scrollbar">
             <h3 class="text-lg font-black text-slate-800">New Admission</h3>
@@ -180,11 +192,11 @@
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Admission Info</label>
-                    <div class="flex gap-2">
-                         <div class="w-1/2"><label class="text-[9px] text-slate-400 font-bold ml-1">Start Date</label><input type="date" id="new-start-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500"></div>
-                         <div class="w-1/2"><label class="text-[9px] text-slate-400 font-bold ml-1">Session Plan</label><input type="number" id="new-total-sessions" placeholder="8" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500"></div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                         <div class="w-full sm:w-1/2"><label class="text-[9px] text-slate-400 font-bold ml-1">Start Date</label><input type="date" id="new-start-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500"></div>
+                         <div class="w-full sm:w-1/2"><label class="text-[9px] text-slate-400 font-bold ml-1">Session Plan</label><input type="number" id="new-total-sessions" placeholder="8" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500"></div>
                     </div>
-                    <div class="flex gap-2 pt-2">
+                    <div class="pt-2">
                         <select id="new-billing-freq" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
                             <option value="Monthly">Bill Monthly</option>
                             <option value="Weekly">Bill Weekly</option>
@@ -234,6 +246,37 @@
         </div>
     </div>
 
+    <!-- MODAL: EDIT INVOICE -->
+    <div id="edit-invoice-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-[95] backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box">
+            <h3 class="text-lg font-black text-slate-800">Edit Invoice</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Description</label>
+                    <input type="text" id="edit-inv-desc" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex gap-2">
+                    <div class="w-1/2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Date</label>
+                        <input type="date" id="edit-inv-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500">
+                    </div>
+                    <div class="w-1/2">
+                         <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Total Amount</label>
+                         <input type="number" id="edit-inv-total" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Remarks (Optional)</label>
+                    <input type="text" id="edit-inv-remark" placeholder="e.g. Late fee waived" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeModal('edit-invoice-modal')" class="flex-1 py-3 font-bold text-slate-400">Cancel</button>
+                <button onclick="saveInvoiceChanges()" class="flex-1 py-3 font-bold text-white bg-indigo-600 rounded-xl shadow-lg">Save</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: RECORD PAYMENT (Higher Z-Index) -->
     <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-[90] backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box">
@@ -265,10 +308,9 @@
                 <!-- Data Management Section -->
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Data Backup</label>
-                    <p class="text-[10px] text-slate-500 mb-2 leading-tight">Save your records to a file to prevent data loss.</p>
-                    <div class="flex gap-2">
-                        <button onclick="backupData()" class="flex-1 py-2 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200">Download Backup</button>
-                        <button onclick="document.getElementById('restore-file').click()" class="flex-1 py-2 bg-white text-slate-600 text-xs font-bold rounded-lg border border-slate-200">Restore File</button>
+                    <div class="flex gap-2 mt-1">
+                        <button onclick="backupData()" class="flex-1 py-2 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200">Download</button>
+                        <button onclick="document.getElementById('restore-file').click()" class="flex-1 py-2 bg-white text-slate-600 text-xs font-bold rounded-lg border border-slate-200">Restore</button>
                         <input type="file" id="restore-file" class="hidden" onchange="restoreData(this)">
                     </div>
                 </div>
@@ -285,7 +327,9 @@
 
                 <p class="text-xs text-slate-500">Set rates to calculate "Total Due" in INR.</p>
                 <div class="space-y-2" id="currency-list"></div>
-                <div class="pt-2">
+                <div class="pt-2 border-t border-slate-100">
+                    <button onclick="saveSettings(); alert('Rates Saved!')" class="w-full mb-3 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Save Currency Rates</button>
+                    
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Add Currency</label>
                     <div class="flex gap-2 mt-1">
                         <input type="text" id="add-curr-code" placeholder="Code" class="w-1/3 p-2 border-2 rounded-lg text-sm font-bold uppercase">
@@ -302,8 +346,14 @@
         <div class="bg-white w-full max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box">
             <h3 class="text-lg font-black text-slate-800">Log Session</h3>
             <div class="space-y-3">
-                <input type="date" id="session-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
-                <textarea id="session-topic" placeholder="What did you teach?" rows="3" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500"></textarea>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Date</label>
+                    <input type="date" id="session-date" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Topic / Details</label>
+                    <textarea id="session-topic" placeholder="What did you teach?" rows="3" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500"></textarea>
+                </div>
             </div>
             <div class="flex gap-2">
                 <button onclick="closeModal('add-session-modal')" class="flex-1 py-3 font-bold text-slate-400">Cancel</button>
@@ -329,7 +379,7 @@
         </div>
         <!-- Body -->
         <div class="p-8 pb-4 print-padding">
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Billed To</p>
+            <p id="doc-subtitle" class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Billed To</p>
             <h3 class="text-xl font-bold text-slate-800" id="doc-parent">--</h3>
             <div class="text-sm text-slate-500 flex gap-4">
                 <span>Student: <span id="doc-student" class="font-semibold">--</span></span>
@@ -341,29 +391,36 @@
         </div>
         <!-- Table -->
         <div class="px-8 print-padding">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text-left text-sm" id="doc-table">
                 <thead>
                     <tr class="border-b-2 border-slate-100 text-slate-400 uppercase text-[10px]">
                         <th class="py-2">Description</th>
+                        <th class="py-2">Remark</th>
                         <th class="py-2 text-right">Amount</th>
                     </tr>
                 </thead>
                 <tbody id="doc-items" class="text-slate-600 font-medium"></tbody>
-                <tfoot>
+                <tfoot id="doc-footer">
                     <tr class="border-t-2 border-slate-900 text-slate-900 font-black text-lg">
-                        <td class="py-4">Total</td>
+                        <td class="py-4" colspan="2">Total</td>
                         <td class="py-4 text-right" id="doc-total">0</td>
                     </tr>
                     <tr id="row-paid" class="text-green-600 font-bold hidden">
-                        <td class="py-2">Paid</td>
+                        <td class="py-2" colspan="2">Paid</td>
                         <td class="py-2 text-right" id="doc-paid">0</td>
                     </tr>
                     <tr id="row-balance" class="text-orange-600 font-bold hidden">
-                        <td class="py-2">Balance Due</td>
+                        <td class="py-2" colspan="2">Balance Due</td>
                         <td class="py-2 text-right" id="doc-balance">0</td>
                     </tr>
                 </tfoot>
             </table>
+            
+            <!-- Global Remark/Note -->
+            <div id="doc-remark-box" class="mt-4 hidden">
+                <span class="text-xs font-bold text-slate-400 uppercase">Remarks:</span>
+                <p id="doc-remark-text" class="text-sm text-slate-600"></p>
+            </div>
         </div>
         <!-- Footer -->
         <div class="px-8 pb-8 pt-4 text-center print-padding">
@@ -377,13 +434,26 @@
 
             <div class="flex gap-2 w-full">
                 <button onclick="closeDoc()" class="px-4 py-3 font-bold text-slate-500">Close</button>
+                <button onclick="openEditInvoice()" id="btn-edit-inv" class="hidden px-4 py-3 bg-blue-100 text-blue-700 rounded-lg font-bold">Edit</button>
                 <div id="btn-delete-inv" class="hidden">
-                    <button onclick="deleteCurrentInvoice()" class="px-4 py-3 text-red-400 font-bold">Delete</button>
+                    <button onclick="customConfirm('Delete this receipt permanently?', deleteCurrentInvoice)" class="px-4 py-3 text-red-400 font-bold">Delete</button>
                 </div>
                 <div class="flex-grow"></div>
                 <button onclick="shareWhatsApp()" class="px-4 py-3 bg-green-500 text-white rounded-lg font-bold shadow-md">WhatsApp</button>
                 <button onclick="window.print()" class="px-4 py-3 bg-indigo-600 text-white rounded-lg font-bold shadow-md">PDF</button>
                 <button onclick="openPaymentModal()" id="btn-record-pay" class="hidden px-4 py-3 bg-slate-800 text-white rounded-lg font-bold shadow-md whitespace-nowrap">Record Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM CONFIRM MODAL -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-[100] backdrop-blur-sm">
+        <div class="bg-white w-full max-w-xs rounded-[2rem] p-6 text-center shadow-2xl modal-box">
+            <h3 class="text-lg font-black text-slate-800 mb-2">Are you sure?</h3>
+            <p id="confirm-msg" class="text-sm text-slate-500 mb-6">This action cannot be undone.</p>
+            <div class="flex gap-2">
+                <button onclick="closeModal('confirm-modal')" class="flex-1 py-3 font-bold text-slate-400 bg-slate-50 rounded-xl">Cancel</button>
+                <button id="confirm-yes-btn" class="flex-1 py-3 font-bold text-white bg-red-500 rounded-xl shadow-lg">Yes</button>
             </div>
         </div>
     </div>
@@ -401,12 +471,20 @@
         let currentStudentId = null;
         let currentInvoiceId = null; 
         let currentDocData = null;
-        let currentLogFilter = 'unreported'; // Default filter
+        let currentLogFilter = 'unreported'; 
+        let confirmCallback = null;
 
         // --- CORE ---
         function save() { localStorage.setItem('gh_students', JSON.stringify(students)); renderHome(); }
         function saveSettings() { localStorage.setItem('gh_settings', JSON.stringify(settings)); }
         function format(num, curr='INR') { return new Intl.NumberFormat('en-US', { style:'currency', currency:curr, maximumFractionDigits:0 }).format(num); }
+        
+        function customConfirm(msg, callback) {
+            document.getElementById('confirm-msg').innerText = msg;
+            confirmCallback = callback;
+            document.getElementById('confirm-modal').classList.replace('hidden', 'flex');
+            document.getElementById('confirm-yes-btn').onclick = () => { callback(); closeModal('confirm-modal'); };
+        }
 
         // --- BACKUP & RESTORE ---
         function backupData() {
@@ -479,25 +557,21 @@
             
             if (students.length === 0) list.innerHTML = `<div class="text-center p-10 opacity-40 italic">No students yet.</div>`;
 
-            // Build Upcoming List (Forecast)
             let forecasts = [];
 
             students.forEach(s => {
                 const currency = s.currency || 'INR';
                 const rate = settings.currencies[currency] || 0;
                 
-                // Calculate pending
                 const pendingInvoices = (s.invoices || []).filter(i => i.status === 'pending' || i.status === 'partial');
                 const pendingAmt = pendingInvoices.reduce((sum, inv) => sum + (inv.total - (inv.amountPaid || 0)), 0);
                 
                 if(rate > 0) totalPendingInINR += (pendingAmt * rate);
 
-                // Collect forecast data
                 if(s.nextBillingDate) {
                     forecasts.push({ student: s, date: new Date(s.nextBillingDate) });
                 }
 
-                // Main List Item
                 const div = document.createElement('div');
                 div.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center cursor-pointer active:scale-[0.98] transition-transform";
                 div.onclick = () => showDetails(s.id);
@@ -509,7 +583,6 @@
                 list.appendChild(div);
             });
 
-            // Render Upcoming Forecast
             forecasts.sort((a,b) => a.date - b.date);
             
             if(forecasts.length === 0) {
@@ -554,7 +627,6 @@
             document.getElementById('detail-start').innerText = s.startDate ? new Date(s.startDate).toLocaleDateString('en-IN') : 'N/A';
             document.getElementById('detail-freq').innerText = s.billingFreq || 'Monthly';
             
-            // Render Sessions (Log) with Filter
             const sessionList = document.getElementById('session-history');
             sessionList.innerHTML = '';
             
@@ -585,12 +657,11 @@
                         <div><div class="text-xs font-bold text-slate-400 mb-1">${new Date(sess.date).toLocaleDateString('en-IN')}</div><div class="text-sm font-semibold text-slate-800">${sess.topic}</div></div>
                         <div class="flex items-center gap-2">
                             <div class="text-[10px] font-bold uppercase px-2 py-1 rounded-lg ${sess.status === 'reported' ? 'text-green-500 bg-green-50' : 'text-orange-500 bg-orange-50'}">${sess.status}</div>
-                            <button onclick="deleteSession('${sess.id}')" class="text-slate-300 hover:text-red-400 font-bold px-1">✕</button>
+                            <button onclick="customConfirm('Delete log entry?', () => deleteSession('${sess.id}'))" class="text-slate-300 hover:text-red-400 font-bold px-1">✕</button>
                         </div>
                     </div>`;
             });
 
-            // Render Invoices (Financial)
             const invList = document.getElementById('invoice-history');
             invList.innerHTML = '';
             if(!(s.invoices && s.invoices.length)) invList.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 italic">No invoices generated.</div>`;
@@ -628,51 +699,44 @@
         }
 
         function deleteSession(sessId) {
-            if(confirm("Delete this log entry?")) {
-                const s = students.find(st => st.id === currentStudentId);
-                s.sessions = s.sessions.filter(sess => sess.id !== sessId);
-                save(); renderDetails();
-            }
+            const s = students.find(st => st.id === currentStudentId);
+            s.sessions = s.sessions.filter(sess => sess.id !== sessId);
+            save(); renderDetails();
         }
         
         function shareLogReport() {
             const s = students.find(st => st.id === currentStudentId);
-            
-            // Re-apply current filter logic to grab items for report
             const now = new Date();
             let itemsToShare = (s.sessions || []);
 
-            if (currentLogFilter === 'unreported') {
-                itemsToShare = itemsToShare.filter(x => x.status === 'unreported');
-            } else if (currentLogFilter === 'current_month') {
-                itemsToShare = itemsToShare.filter(x => {
-                    const d = new Date(x.date);
-                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                });
-            } else if (currentLogFilter === 'last_month') {
-                const lastMonth = new Date();
-                lastMonth.setMonth(now.getMonth() - 1);
-                itemsToShare = itemsToShare.filter(x => {
-                    const d = new Date(x.date);
-                    return d.getMonth() === lastMonth.getMonth() && d.getFullYear() === lastMonth.getFullYear();
-                });
-            }
+            // Apply filters logic...
+            if (currentLogFilter === 'unreported') itemsToShare = itemsToShare.filter(x => x.status === 'unreported');
+            else if (currentLogFilter === 'current_month') itemsToShare = itemsToShare.filter(x => new Date(x.date).getMonth() === now.getMonth());
+            else if (currentLogFilter === 'last_month') itemsToShare = itemsToShare.filter(x => new Date(x.date).getMonth() === now.getMonth() - 1);
 
             if(!itemsToShare.length) return alert("No sessions found for current filter.");
             
-            // Determine Title based on filter
-            let title = "SESSION LOG";
-            if (currentLogFilter === 'current_month') title += ` (${now.toLocaleString('default', {month:'long'})})`;
-            if (currentLogFilter === 'last_month') title += " (Last Month)";
+            // Format dynamic period text for header
+            let periodText = "";
+            if(currentLogFilter === 'last_month') periodText = "taken Last Month";
+            else if(currentLogFilter === 'current_month') periodText = "taken This Month";
+            else periodText = "taken recently";
 
-            currentDocData = { title: title, type: 'log', student: s, items: itemsToShare.map(x => ({ desc: `${new Date(x.date).toLocaleDateString('en-IN')}: ${x.topic}`, amount: '' })) };
+            currentDocData = { 
+                title: "SESSION REPORT", 
+                type: 'log', 
+                student: s, 
+                periodText: periodText,
+                items: itemsToShare.map(x => ({ desc: `${new Date(x.date).toLocaleDateString('en-IN')}: ${x.topic}`, amount: '' })) 
+            };
             
             renderDoc(currentDocData);
             
-            // Only ask to mark unreported if in unreported mode
-            if(currentLogFilter === 'unreported' && confirm("Mark these sessions as Reported?")) { 
-                itemsToShare.forEach(x => x.status = 'reported'); 
-                save(); renderDetails(); 
+            if(currentLogFilter === 'unreported') { 
+                customConfirm("Mark these sessions as Reported?", () => {
+                    itemsToShare.forEach(x => x.status = 'reported'); 
+                    save(); renderDetails(); 
+                });
             }
         }
 
@@ -753,12 +817,13 @@
             const isPaid = inv.status === 'paid';
             const isPartial = inv.status === 'partial';
             
-            currentDocData = { title: isPaid || isPartial ? "RECEIPT" : "INVOICE", type: isPaid || isPartial ? 'receipt' : 'invoice', student: s, inv: inv, items: inv.items, total: inv.total, paid: inv.amountPaid || 0, currency: s.currency };
+            currentDocData = { title: isPaid || isPartial ? "RECEIPT" : "INVOICE", type: isPaid || isPartial ? 'receipt' : 'invoice', student: s, inv: inv, items: inv.items, total: inv.total, paid: inv.amountPaid || 0, currency: s.currency, remarks: inv.remarks || '' };
             renderDoc(currentDocData);
             
             const btnPay = document.getElementById('btn-record-pay');
             const btnRemind = document.getElementById('btn-reminder');
             const btnDelete = document.getElementById('btn-delete-inv');
+            const btnEdit = document.getElementById('btn-edit-inv');
             
             if(!isPaid) { 
                 btnPay.classList.remove('hidden'); 
@@ -769,13 +834,41 @@
                 btnRemind.classList.add('hidden');
             }
 
-            // Delete Logic: Only allow delete if Paid
+            // Edit allowed anytime, Delete allowed if paid/receipt
+            btnEdit.classList.remove('hidden');
             if(isPaid) btnDelete.classList.remove('hidden'); else btnDelete.classList.add('hidden');
+        }
+
+        function openEditInvoice() {
+            const s = students.find(st => st.id === currentStudentId);
+            const inv = s.invoices.find(i => i.id == currentInvoiceId);
+            
+            document.getElementById('edit-inv-desc').value = inv.desc;
+            document.getElementById('edit-inv-date').value = new Date(inv.date).toISOString().split('T')[0];
+            document.getElementById('edit-inv-total').value = inv.total;
+            document.getElementById('edit-inv-remark').value = inv.remarks || '';
+            
+            document.getElementById('edit-invoice-modal').classList.replace('hidden', 'flex');
+        }
+
+        function saveInvoiceChanges() {
+            const s = students.find(st => st.id === currentStudentId);
+            const inv = s.invoices.find(i => i.id == currentInvoiceId);
+            
+            inv.desc = document.getElementById('edit-inv-desc').value;
+            inv.date = new Date(document.getElementById('edit-inv-date').value).toISOString();
+            inv.total = parseFloat(document.getElementById('edit-inv-total').value);
+            inv.remarks = document.getElementById('edit-inv-remark').value;
+            
+            save();
+            closeModal('edit-invoice-modal');
+            viewDocument(currentInvoiceId); // Refresh view
+            renderDetails();
         }
 
         function renderDoc(data) {
             document.getElementById('doc-title').innerText = data.title;
-            // Handle ID safely for logs vs invoices
+            // Handle ID safely
             document.getElementById('doc-id').innerText = data.id || (data.inv ? data.inv.id : 'LOG');
             document.getElementById('doc-date').innerText = new Date(data.date || (data.inv ? data.inv.date : new Date())).toLocaleDateString('en-IN');
             
@@ -783,9 +876,9 @@
             document.getElementById('doc-student').innerText = data.student.name;
             document.getElementById('doc-grade').innerText = data.student.grade || '';
             const tbody = document.getElementById('doc-items'); tbody.innerHTML = '';
-            data.items.forEach(i => { tbody.innerHTML += `<tr class="border-b border-slate-50"><td class="py-3">${i.desc}</td><td class="py-3 text-right">${typeof i.amount === 'number' ? format(i.amount, data.currency || data.student.currency) : ''}</td></tr>`; });
+            data.items.forEach(i => { tbody.innerHTML += `<tr class="border-b border-slate-50"><td class="py-3">${i.desc}</td><td class="py-3 text-xs text-slate-400"></td><td class="py-3 text-right">${typeof i.amount === 'number' ? format(i.amount, data.currency || data.student.currency) : ''}</td></tr>`; });
             
-            // Total handling - handle logs (no total) vs invoices
+            // Total handling
             const totalText = typeof data.total === 'number' ? format(data.total, data.currency || data.student.currency) : '';
             document.getElementById('doc-total').innerText = totalText;
             
@@ -800,7 +893,6 @@
             } else { rowPaid.classList.add('hidden'); rowBal.classList.add('hidden'); }
 
             const txnBox = document.getElementById('doc-txn-info');
-            // Check for inv existence before checking txnDetails
             if(data.inv && data.inv.txnDetails && data.inv.txnDetails.length > 0) {
                 const lastTxn = data.inv.txnDetails[data.inv.txnDetails.length - 1];
                 txnBox.innerHTML = `<strong>Last Payment:</strong> ${format(lastTxn.amount, curr)} via ${lastTxn.mode} (${lastTxn.date})`;
@@ -809,29 +901,42 @@
 
             const bank = document.getElementById('bank-details');
             const note = document.getElementById('doc-note');
+            const docSubtitle = document.getElementById('doc-subtitle');
+            const remarkBox = document.getElementById('doc-remark-box');
+            
+            // Remark Display
+            if(data.remarks) {
+                document.getElementById('doc-remark-text').innerText = data.remarks;
+                remarkBox.classList.remove('hidden');
+            } else { remarkBox.classList.add('hidden'); }
+
             if(data.type === 'invoice') {
                 bank.innerHTML = `<strong>Payment Details:</strong>\n${settings.bankDetails}`;
                 bank.classList.remove('hidden');
                 note.innerText = "Please clear the dues for the upcoming period.";
+                docSubtitle.innerText = "Billed To";
+                document.getElementById('doc-footer').classList.remove('hidden'); // Show totals
             } else if (data.type === 'receipt') {
                 bank.classList.add('hidden');
                 note.innerText = "Payment Received. Thank you!";
+                docSubtitle.innerText = "Received From";
+                document.getElementById('doc-footer').classList.remove('hidden'); // Show totals
             } else {
-                // Log
+                // Log Report
                 bank.classList.add('hidden');
-                note.innerText = "Session Log Report";
+                note.innerText = `Details of sessions ${data.periodText || ''}.`;
+                docSubtitle.innerText = "Report For";
+                document.getElementById('doc-footer').classList.add('hidden'); // Hide totals for log
             }
             document.getElementById('doc-modal').classList.remove('hidden');
         }
 
         function deleteCurrentInvoice() {
-            if(confirm("Delete this receipt? This action cannot be undone.")) {
-                const s = students.find(st => st.id === currentStudentId);
-                s.invoices = s.invoices.filter(i => i.id !== currentInvoiceId);
-                save();
-                closeDoc();
-                renderDetails();
-            }
+            const s = students.find(st => st.id === currentStudentId);
+            s.invoices = s.invoices.filter(i => i.id !== currentInvoiceId);
+            save();
+            closeDoc();
+            renderDetails();
         }
 
         function openPaymentModal() {
@@ -889,6 +994,7 @@
             
             if (d.type === 'log') {
                  d.items.forEach(i => text += `${i.desc}\n`);
+                 text += `\n${d.periodText || ''}`;
             } else {
                 if(d.type === 'invoice') text += `Total Due: ${format(d.total, d.currency)}\n\nPayment Details:\n${settings.bankDetails}`;
                 else text += `Paid: ${format(d.paid, d.currency)}\nBalance: ${format(d.total - d.paid, d.currency)}\n\nPayment Received. Thanks!`;
@@ -950,7 +1056,12 @@
                 currentStudentId = newId; switchTab('financial'); setTimeout(openGenerateInvoiceModal, 300);
             }
         }
-        function deleteStudent() { if(currentStudentId && confirm('Delete student?')) { students = students.filter(s => s.id !== currentStudentId); save(); showHome(); } }
+        function deleteStudent() { 
+            const s = students.find(st => st.id === currentStudentId);
+            students = students.filter(s => s.id !== currentStudentId); 
+            save(); 
+            showHome(); 
+        }
         function closeModal(id) { document.getElementById(id).classList.replace('flex', 'hidden'); }
         function closeDoc() { document.getElementById('doc-modal').classList.add('hidden'); }
         function addCurrency() { const c = document.getElementById('add-curr-code').value.toUpperCase(); const r = document.getElementById('add-curr-rate').value; if(c&&r) { settings.currencies[c]=parseFloat(r); saveSettings(); renderCurrencyList(); document.getElementById('add-curr-code').value=''; } }
