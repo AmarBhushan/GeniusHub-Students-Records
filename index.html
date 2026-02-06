@@ -108,7 +108,8 @@
             </button>
 
             <div class="relative z-10">
-                <div class="flex justify-between items-start">
+                <!-- Added pr-12 to prevent overlap with absolute edit button -->
+                <div class="flex justify-between items-start pr-12">
                      <div class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">Since: <span id="detail-start">--</span></div>
                      <div class="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg uppercase" id="detail-freq">--</div>
                 </div>
@@ -780,13 +781,19 @@
             
             // Calc dates based on next billing date
             const startDate = s.nextBillingDate ? new Date(s.nextBillingDate) : new Date();
-            const endDate = new Date(startDate);
-            if(s.billingFreq === 'Weekly') endDate.setDate(endDate.getDate() + 7);
-            else if(s.billingFreq === 'Daily') endDate.setDate(endDate.getDate() + 1);
-            else endDate.setMonth(endDate.getMonth() + 1);
             
-            // Auto Title
-            const desc = `${s.billingFreq} Fees: ${startDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'})} - ${endDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'})}`;
+            // Calculate Next Cycle Start (The date the NEXT bill begins)
+            const nextCycleStart = new Date(startDate);
+            if(s.billingFreq === 'Weekly') nextCycleStart.setDate(nextCycleStart.getDate() + 7);
+            else if(s.billingFreq === 'Daily') nextCycleStart.setDate(nextCycleStart.getDate() + 1);
+            else nextCycleStart.setMonth(nextCycleStart.getMonth() + 1);
+
+            // Calculate Display End Date (The last day covered by THIS bill = Next Start - 1 Day)
+            const displayEndDate = new Date(nextCycleStart);
+            displayEndDate.setDate(displayEndDate.getDate() - 1);
+            
+            // Auto Title using Display End Date
+            const desc = `${s.billingFreq} Fees: ${startDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'})} - ${displayEndDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'})}`;
             
             document.getElementById('inv-sessions').value = s.totalSessions || 8;
             document.getElementById('inv-desc').value = desc;
@@ -809,14 +816,20 @@
             
             // Calculate Period Dates for Line Item
             const startDate = s.nextBillingDate ? new Date(s.nextBillingDate) : new Date();
-            const endDate = new Date(startDate);
-            if(s.billingFreq === 'Weekly') endDate.setDate(endDate.getDate() + 7);
-            else if(s.billingFreq === 'Daily') endDate.setDate(endDate.getDate() + 1);
-            else endDate.setMonth(endDate.getMonth() + 1); // Monthly
+            
+            // Calculate Next Cycle Start
+            const nextCycleStart = new Date(startDate);
+            if(s.billingFreq === 'Weekly') nextCycleStart.setDate(nextCycleStart.getDate() + 7);
+            else if(s.billingFreq === 'Daily') nextCycleStart.setDate(nextCycleStart.getDate() + 1);
+            else nextCycleStart.setMonth(nextCycleStart.getMonth() + 1); // Monthly
+            
+            // Calculate Display End Date
+            const displayEndDate = new Date(nextCycleStart);
+            displayEndDate.setDate(displayEndDate.getDate() - 1);
             
             // Format dates
             const startStr = startDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
-            const endStr = endDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
+            const endStr = displayEndDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
             const lineItemDesc = `${s.billingFreq || 'Monthly'} Fees: ${startStr} to ${endStr} (${sessCount} Sessions)`;
 
             const newInv = {
@@ -832,8 +845,8 @@
             if(!s.invoices) s.invoices = [];
             s.invoices.push(newInv);
             
-            // Update Next Billing Date to prevent drift (always use calculated end date)
-            s.nextBillingDate = endDate.toISOString();
+            // Update Next Billing Date to prevent drift (always use calculated Next Cycle Start)
+            s.nextBillingDate = nextCycleStart.toISOString();
 
             save();
             closeModal('generate-invoice-modal');
@@ -891,6 +904,12 @@
             inv.total = parseFloat(document.getElementById('edit-inv-total').value);
             inv.remarks = document.getElementById('edit-inv-remark').value;
             
+            // Recalculate Status based on new total
+            const paid = inv.amountPaid || 0;
+            if (paid >= inv.total) inv.status = 'paid';
+            else if (paid > 0) inv.status = 'partial';
+            else inv.status = 'pending';
+
             save();
             closeModal('edit-invoice-modal');
             viewDocument(currentInvoiceId); // Refresh view
