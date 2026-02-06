@@ -44,8 +44,8 @@
             <div class="flex items-center gap-3">
                 <img id="header-logo" src="" class="w-12 h-12 rounded-full bg-white object-contain p-0.5 hidden shadow-md">
                 <div>
-                    <h1 class="text-2xl font-black tracking-tight">Billing Manager</h1>
-                    <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">GeniusHub Records</p>
+                    <h1 class="text-2xl font-black tracking-tight">GeniusHub Classes</h1>
+                    <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">Student Records</p>
                 </div>
             </div>
             <div class="flex gap-2">
@@ -392,7 +392,7 @@
                     <img id="doc-logo" src="" class="w-16 h-16 rounded-lg bg-white object-contain p-1 hidden shadow-lg">
                     <div>
                         <h1 class="text-3xl font-black tracking-tighter" id="doc-title">INVOICE</h1>
-                        <p class="text-indigo-200 text-sm font-bold uppercase tracking-widest">GeniusHub Records</p>
+                        <p class="text-indigo-200 text-sm font-bold uppercase tracking-widest">GeniusHub Classes</p>
                     </div>
                 </div>
                 <div class="text-right">
@@ -457,16 +457,16 @@
             <button onclick="sendReminder()" id="btn-reminder" class="hidden w-full py-2 bg-orange-100 text-orange-700 text-xs font-bold rounded-lg border border-orange-200">Send Reminder 1</button>
 
             <!-- Responsive Button Scroll Row -->
-            <div class="flex overflow-x-auto gap-2 w-full pb-1 hide-scrollbar">
-                <button onclick="closeDoc()" class="flex-none px-4 py-2 font-bold text-slate-500 bg-white border rounded-lg text-xs whitespace-nowrap">Close</button>
-                <button onclick="openEditInvoice()" id="btn-edit-inv" class="hidden flex-none px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold text-xs border border-blue-100 whitespace-nowrap">Edit</button>
+            <div class="grid grid-cols-2 gap-2 w-full pb-1">
+                <button onclick="closeDoc()" class="px-4 py-2 font-bold text-slate-500 bg-white border rounded-lg text-xs whitespace-nowrap">Close</button>
+                <button onclick="openEditInvoice()" id="btn-edit-inv" class="hidden px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold text-xs border border-blue-100 whitespace-nowrap">Edit</button>
                 
-                <button onclick="shareWhatsApp()" class="flex-none px-4 py-2 bg-green-500 text-white rounded-lg font-bold shadow-sm text-xs whitespace-nowrap">WhatsApp</button>
-                <button onclick="window.print()" class="flex-none px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold shadow-sm text-xs whitespace-nowrap">PDF</button>
-                <button onclick="openPaymentModal()" id="btn-record-pay" class="hidden flex-none px-4 py-2 bg-slate-800 text-white rounded-lg font-bold shadow-md text-xs whitespace-nowrap border-2 border-slate-700">Record Payment</button>
+                <button onclick="shareWhatsApp()" class="px-4 py-2 bg-green-500 text-white rounded-lg font-bold shadow-sm text-xs whitespace-nowrap">WhatsApp</button>
+                <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold shadow-sm text-xs whitespace-nowrap">PDF</button>
+                <button onclick="openPaymentModal()" id="btn-record-pay" class="hidden col-span-2 px-4 py-2 bg-slate-800 text-white rounded-lg font-bold shadow-md text-xs whitespace-nowrap border-2 border-slate-700">Record Payment</button>
                 
-                <div id="btn-delete-inv" class="hidden flex-none">
-                    <button onclick="customConfirm('Delete this receipt permanently?', deleteCurrentInvoice)" class="px-4 py-2 text-red-500 border border-red-100 rounded-lg font-bold text-xs bg-red-50 whitespace-nowrap">Delete</button>
+                <div id="btn-delete-inv" class="hidden col-span-2">
+                    <button onclick="customConfirm('Delete this receipt permanently?', deleteCurrentInvoice)" class="w-full px-4 py-2 text-red-500 border border-red-100 rounded-lg font-bold text-xs bg-red-50 whitespace-nowrap">Delete</button>
                 </div>
             </div>
         </div>
