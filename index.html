@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,6 +26,16 @@
         .modal-box { animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: scale(0.9); }
         @keyframes modalPop { to { opacity: 1; transform: scale(1); } }
 
+        /* iOS Date Input Fixes */
+        input[type="date"] {
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 3rem; /* Enforce height match with text inputs */
+            background-color: #f8fafc; /* match bg-slate-50 */
+        }
+        /* Alignment fix for iOS date text */
+        input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+        
         /* Print Styles */
         @media print {
             body * { visibility: hidden; }
@@ -176,7 +185,8 @@
                     <div class="flex flex-col gap-2">
                          <div class="min-w-0">
                              <label class="text-[9px] text-slate-400 font-bold ml-1">Start Date</label>
-                             <input type="date" id="new-start-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 max-w-full">
+                             <!-- Added text-base to prevent iOS zoom -->
+                             <input type="date" id="new-start-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-base font-bold outline-none focus:border-indigo-500 max-w-full">
                          </div>
                          <div>
                              <label class="text-[9px] text-slate-400 font-bold ml-1">Plan Size (Sessions/Month)</label>
@@ -227,7 +237,8 @@
                 <div class="flex flex-col gap-2">
                      <div class="min-w-0">
                          <label class="text-[9px] text-slate-400 font-bold ml-1">Start Date</label>
-                         <input type="date" id="edit-start-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 max-w-full">
+                         <!-- Added text-base to prevent iOS zoom -->
+                         <input type="date" id="edit-start-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-base font-bold outline-none focus:border-indigo-500 max-w-full">
                      </div>
                      <div>
                          <label class="text-[9px] text-slate-400 font-bold ml-1">Plan Size</label>
@@ -286,7 +297,8 @@
                 <div class="flex flex-col gap-2">
                     <div class="min-w-0">
                         <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Date</label>
-                        <input type="date" id="edit-inv-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500 max-w-full">
+                        <!-- Added text-base to prevent iOS zoom -->
+                        <input type="date" id="edit-inv-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-base outline-none focus:border-indigo-500 max-w-full">
                     </div>
                     <div>
                          <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Total Amount</label>
@@ -317,7 +329,8 @@
                 <div class="flex flex-col gap-2">
                     <input type="text" id="pay-mode" placeholder="Mode (GPay, etc.)" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500">
                     <div class="min-w-0">
-                        <input type="date" id="pay-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500 max-w-full">
+                        <!-- Added text-base to prevent iOS zoom -->
+                        <input type="date" id="pay-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-base outline-none focus:border-indigo-500 max-w-full">
                     </div>
                 </div>
                 <input type="text" id="pay-txn-id" placeholder="Transaction ID / Ref No." class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500">
@@ -639,11 +652,7 @@
                 const div = document.createElement('div');
                 div.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center cursor-pointer active:scale-[0.98] transition-transform";
                 div.onclick = () => showDetails(s.id);
-                div.innerHTML = `
-                    <div><h4 class="font-bold text-slate-800 text-lg">${s.name}</h4><p class="text-xs text-slate-400 font-medium">${s.grade ? 'Grade '+s.grade : s.parent}</p></div>
-                    <div class="text-right">
-                        ${pendingAmt > 0 ? `<div class="text-orange-500 font-black text-sm">${format(pendingAmt, currency)}</div><div class="text-[10px] font-bold text-orange-300 uppercase">Due</div>` : `<div class="text-green-500 font-bold text-xs bg-green-50 px-2 py-1 rounded-lg">All Paid</div>`}
-                    </div>`;
+                div.innerHTML = `<br>                    <div><h4 class="font-bold text-slate-800 text-lg">${s.name}</h4><p class="text-xs text-slate-400 font-medium">${s.grade ? 'Grade '+s.grade : s.parent}</p></div><br>                    <div class="text-right"><br>                        ${pendingAmt > 0 ? `<div class="text-orange-500 font-black text-sm">${format(pendingAmt, currency)}</div><div class="text-[10px] font-bold text-orange-300 uppercase">Due</div>` : `<div class="text-green-500 font-bold text-xs bg-green-50 px-2 py-1 rounded-lg">All Paid</div>`}<br>                    </div>`;
                 list.appendChild(div);
             });
 
@@ -664,13 +673,7 @@
                     const daysLeft = Math.ceil((item.date - new Date()) / (1000 * 60 * 60 * 24));
                     const dueText = isDueNow ? "Due Now" : `Due in ${daysLeft} days`;
 
-                    upDiv.innerHTML = `
-                        <div>
-                            <div class="text-sm font-black ${isDueNow ? 'text-indigo-900' : 'text-slate-700'}">${s.name}</div>
-                            <div class="text-[10px] font-bold ${isDueNow ? 'text-indigo-500' : 'text-slate-400'} uppercase">${dueText} (${item.date.toLocaleDateString('en-IN', {day:'numeric', month:'short'})})</div>
-                        </div>
-                        ${isDueNow ? `<button onclick="autoFillInvoice('${s.id}')" class="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow hover:bg-indigo-700">Create</button>` : ''}
-                    `;
+                    upDiv.innerHTML = `<br>                        <div><br>                            <div class="text-sm font-black ${isDueNow ? 'text-indigo-900' : 'text-slate-700'}">${s.name}</div><br>                            <div class="text-[10px] font-bold ${isDueNow ? 'text-indigo-500' : 'text-slate-400'} uppercase">${dueText} (${item.date.toLocaleDateString('en-IN', {day:'numeric', month:'short'})})</div><br>                        </div><br>                        ${isDueNow ? `<button onclick="autoFillInvoice('${s.id}')" class="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow hover:bg-indigo-700">Create</button>` : ''}<br>                    `;
                     upcomingList.appendChild(upDiv);
                 });
             }
@@ -712,17 +715,7 @@
                 const statusLabel = isPaid ? 'Paid' : (isPartial ? 'Partial' : 'Pending');
                 const statusColor = isPaid ? 'text-green-600 bg-green-100' : (isPartial ? 'text-blue-600 bg-blue-100' : 'text-orange-600 bg-orange-100');
                 
-                invList.innerHTML += `
-                    <div class="p-4 flex justify-between items-center cursor-pointer hover:bg-slate-50" onclick="viewDocument('${inv.id}')">
-                        <div>
-                            <div class="text-xs font-bold text-slate-400 mb-1">${new Date(inv.date).toLocaleDateString('en-IN')}</div>
-                            <div class="text-sm font-bold text-slate-800">${inv.desc}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="font-black text-sm">${format(inv.total, curr)}</div>
-                            <div class="text-[10px] font-bold uppercase px-2 py-1 rounded-lg inline-block ${statusColor}">${statusLabel}</div>
-                        </div>
-                    </div>`;
+                invList.innerHTML += `<br>                    <div class="p-4 flex justify-between items-center cursor-pointer hover:bg-slate-50" onclick="viewDocument('${inv.id}')"><br>                        <div><br>                            <div class="text-xs font-bold text-slate-400 mb-1">${new Date(inv.date).toLocaleDateString('en-IN')}</div><br>                            <div class="text-sm font-bold text-slate-800">${inv.desc}</div><br>                        </div><br>                        <div class="text-right"><br>                            <div class="font-black text-sm">${format(inv.total, curr)}</div><br>                            <div class="text-[10px] font-bold uppercase px-2 py-1 rounded-lg inline-block ${statusColor}">${statusLabel}</div><br>                        </div><br>                    </div>`;
             });
         }
 
@@ -931,12 +924,7 @@
             tbody.innerHTML = '';
 
             data.items.forEach(i => { 
-                tbody.innerHTML += `
-                <tr class="border-b border-slate-50">
-                    <td class="py-3">${i.desc}</td>
-                    <td class="py-3 text-xs text-slate-400"></td> 
-                    <td class="py-3 text-right">${typeof i.amount === 'number' ? format(i.amount, data.currency || data.student.currency) : ''}</td>
-                </tr>`; 
+                tbody.innerHTML += `<br>                <tr class="border-b border-slate-50"><br>                    <td class="py-3">${i.desc}</td><br>                    <td class="py-3 text-xs text-slate-400"></td> <br>                    <td class="py-3 text-right">${typeof i.amount === 'number' ? format(i.amount, data.currency || data.student.currency) : ''}</td><br>                </tr>`; 
             });
             
             const totalText = typeof data.total === 'number' ? format(data.total, data.currency || data.student.currency) : '';
@@ -1063,15 +1051,7 @@
             const list = document.getElementById('currency-list'); list.innerHTML='';
             Object.entries(settings.currencies).forEach(([c,r])=>{ 
                 if(c!=='INR') {
-                    list.innerHTML+=`
-                    <div class="flex justify-between items-center p-2 bg-slate-50 text-sm rounded-lg">
-                        <span class="font-bold w-12">${c}</span>
-                        <div class="flex items-center gap-2">
-                            <input type="number" value="${r}" onchange="updateRate('${c}', this.value)" class="w-20 p-1 border rounded text-center font-bold">
-                            <span class="text-xs text-slate-400">INR</span>
-                            <button onclick="delete settings.currencies['${c}']; saveSettings(); renderCurrencyList()" class="text-red-400 font-bold ml-2">×</button>
-                        </div>
-                    </div>`;
+                    list.innerHTML+=`<br>                    <div class="flex justify-between items-center p-2 bg-slate-50 text-sm rounded-lg"><br>                        <span class="font-bold w-12">${c}</span><br>                        <div class="flex items-center gap-2"><br>                            <input type="number" value="${r}" onchange="updateRate('${c}', this.value)" class="w-20 p-1 border rounded text-center font-bold"><br>                            <span class="text-xs text-slate-400">INR</span><br>                            <button onclick="delete settings.currencies['${c}']; saveSettings(); renderCurrencyList()" class="text-red-400 font-bold ml-2">×</button><br>                        </div><br>                    </div>`;
                 }
             });
         }
