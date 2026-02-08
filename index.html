@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GeniusHub Records</title>
+    <title>GeniusHub Billing</title>
     
     <!-- PWA Config -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,16 +23,6 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* FIX FOR IPHONE DATE PICKER */
-        input[type="date"] {
-            -webkit-appearance: none;
-            appearance: none;
-            display: block;
-            width: 100%;
-            min-width: 0;
-            text-align: left;
-        }
-
         /* Modal Animation */
         .modal-box { animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: scale(0.9); }
         @keyframes modalPop { to { opacity: 1; transform: scale(1); } }
@@ -54,8 +45,8 @@
             <div class="flex items-center gap-3">
                 <img id="header-logo" src="" class="w-12 h-12 rounded-full bg-white object-contain p-0.5 hidden shadow-md">
                 <div>
-                    <h1 class="text-2xl font-black tracking-tight">Student Records</h1>
-                    <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">GeniusHub Classes</p>
+                    <h1 class="text-2xl font-black tracking-tight">GeniusHub Classes</h1>
+                    <p class="text-indigo-200 text-xs font-bold uppercase tracking-widest">Student Records</p>
                 </div>
             </div>
             <div class="flex gap-2">
@@ -118,8 +109,9 @@
             </button>
 
             <div class="relative z-10">
-                <div class="flex justify-between items-start">
-                     <div class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">Started: <span id="detail-start">--</span></div>
+                <!-- Added pr-12 to prevent overlap with absolute edit button -->
+                <div class="flex justify-between items-start pr-12">
+                     <div class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">Since: <span id="detail-start">--</span></div>
                      <div class="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg uppercase" id="detail-freq">--</div>
                 </div>
                 
@@ -136,38 +128,8 @@
             </div>
         </div>
 
-        <!-- TABS -->
-        <div class="flex bg-slate-200 p-1 rounded-xl">
-            <button onclick="switchTab('academic')" id="tab-academic" class="flex-1 py-2 rounded-lg text-xs font-bold shadow-sm bg-white text-slate-800 transition-all">Session Log</button>
-            <button onclick="switchTab('financial')" id="tab-financial" class="flex-1 py-2 rounded-lg text-xs font-bold text-slate-500 transition-all">Billing & Fees</button>
-        </div>
-
-        <!-- TAB CONTENT: ACADEMIC (LOGS) -->
-        <div id="content-academic" class="space-y-4">
-             <!-- Filter & Actions -->
-             <div class="flex gap-2">
-                <select id="log-filter" onchange="updateLogFilter(this.value)" class="flex-1 p-3 bg-white border-2 border-slate-200 rounded-xl text-xs font-bold outline-none text-slate-700">
-                    <option value="unreported">Unreported (Default)</option>
-                    <option value="current_month">This Month</option>
-                    <option value="last_month">Last Month</option>
-                    <option value="all">All Time</option>
-                </select>
-                <button onclick="shareLogReport()" class="flex-none px-4 bg-indigo-100 text-indigo-700 rounded-xl font-bold text-lg">📤</button>
-             </div>
-             
-             <button onclick="openAddSessionModal()" class="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm shadow-lg">+ Log New Session</button>
-
-             <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-5 border-b border-slate-50 flex justify-between items-center">
-                    <h3 class="text-sm font-black text-slate-800">Sessions</h3>
-                    <span id="log-count" class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">0 Found</span>
-                </div>
-                <div id="session-history" class="divide-y divide-slate-50 max-h-[400px] overflow-y-auto"></div>
-             </div>
-        </div>
-
-        <!-- TAB CONTENT: FINANCIAL (INVOICES) -->
-        <div id="content-financial" class="hidden space-y-4">
+        <!-- INVOICE ACTIONS -->
+        <div class="space-y-4">
              <button onclick="openGenerateInvoiceModal()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200">
                 📄 Generate Invoice
              </button>
@@ -195,7 +157,7 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD STUDENT (Vertical Layout for Mobile) -->
+    <!-- MODAL: ADD STUDENT -->
     <div id="add-student-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
         <div class="bg-white w-[90%] max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box h-[85vh] overflow-y-auto custom-scrollbar">
             <h3 class="text-lg font-black text-slate-800">New Admission</h3>
@@ -210,15 +172,14 @@
                     <input type="tel" id="new-phone" placeholder="Phone (e.g. 9876543210)" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Admission Info</label>
-                    <!-- Stacked for Mobile Safety -->
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Billing Info</label>
                     <div class="flex flex-col gap-2">
                          <div class="min-w-0">
                              <label class="text-[9px] text-slate-400 font-bold ml-1">Start Date</label>
                              <input type="date" id="new-start-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 max-w-full">
                          </div>
                          <div>
-                             <label class="text-[9px] text-slate-400 font-bold ml-1">Session Plan (Total)</label>
+                             <label class="text-[9px] text-slate-400 font-bold ml-1">Plan Size (Sessions/Month)</label>
                              <input type="number" id="new-total-sessions" placeholder="8" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
                          </div>
                     </div>
@@ -234,7 +195,7 @@
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Fees Config</label>
                     <div class="flex gap-2">
                         <select id="new-currency" class="w-1/3 p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500 text-sm"></select>
-                        <input type="number" id="new-rate" placeholder="Total Fee/Cycle" class="w-2/3 p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
+                        <input type="number" id="new-rate" placeholder="Fee Amount" class="w-2/3 p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
                     </div>
                 </div>
             </div>
@@ -245,7 +206,7 @@
         </div>
     </div>
 
-    <!-- MODAL: EDIT STUDENT (Vertical Fix) -->
+    <!-- MODAL: EDIT STUDENT -->
     <div id="edit-student-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
         <div class="bg-white w-[90%] max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box h-[85vh] overflow-y-auto custom-scrollbar">
             <h3 class="text-lg font-black text-slate-800">Edit Details</h3>
@@ -269,7 +230,7 @@
                          <input type="date" id="edit-start-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 max-w-full">
                      </div>
                      <div>
-                         <label class="text-[9px] text-slate-400 font-bold ml-1">Session Plan</label>
+                         <label class="text-[9px] text-slate-400 font-bold ml-1">Plan Size</label>
                          <input type="number" id="edit-total-sessions" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
                      </div>
                 </div>
@@ -286,7 +247,7 @@
         </div>
     </div>
 
-    <!-- MODAL: GENERATE INVOICE (Vertical Fix) -->
+    <!-- MODAL: GENERATE INVOICE -->
     <div id="generate-invoice-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
         <div class="bg-white w-[90%] max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box">
             <h3 class="text-lg font-black text-slate-800">Generate Invoice</h3>
@@ -297,7 +258,7 @@
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <div class="w-full sm:w-1/2">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Sessions</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Session Count</label>
                         <input type="number" id="inv-sessions" placeholder="8" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
                     </div>
                     <div class="w-full sm:w-1/2">
@@ -313,7 +274,7 @@
         </div>
     </div>
 
-    <!-- MODAL: EDIT INVOICE (Vertical Fix) -->
+    <!-- MODAL: EDIT INVOICE -->
     <div id="edit-invoice-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-[95] backdrop-blur-sm">
         <div class="bg-white w-[90%] max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box">
             <h3 class="text-lg font-black text-slate-800">Edit Invoice</h3>
@@ -322,7 +283,6 @@
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Description</label>
                     <input type="text" id="edit-inv-desc" class="w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500">
                 </div>
-                <!-- Stacked Vertically to avoid overlap -->
                 <div class="flex flex-col gap-2">
                     <div class="min-w-0">
                         <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Date</label>
@@ -345,7 +305,7 @@
         </div>
     </div>
 
-    <!-- MODAL: RECORD PAYMENT (Vertical Fix) -->
+    <!-- MODAL: RECORD PAYMENT -->
     <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-[90] backdrop-blur-sm">
         <div class="bg-white w-[90%] max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box">
             <h3 class="text-lg font-black text-slate-800">Record Payment</h3>
@@ -424,27 +384,6 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD SESSION -->
-    <div id="add-session-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
-        <div class="bg-white w-[90%] max-w-sm rounded-[2rem] p-6 space-y-4 shadow-2xl modal-box">
-            <h3 class="text-lg font-black text-slate-800">Log Session</h3>
-            <div class="space-y-3">
-                <div class="min-w-0">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Date</label>
-                    <input type="date" id="session-date" class="block w-full p-3 bg-slate-50 border-2 rounded-xl font-bold outline-none focus:border-indigo-500 max-w-full">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Topic / Details</label>
-                    <textarea id="session-topic" placeholder="What did you teach?" rows="3" class="w-full p-3 bg-slate-50 border-2 rounded-xl text-sm outline-none focus:border-indigo-500"></textarea>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="closeModal('add-session-modal')" class="flex-1 py-3 font-bold text-slate-400">Cancel</button>
-                <button onclick="saveSession()" class="flex-1 py-3 font-bold text-white bg-indigo-600 rounded-xl shadow-lg">Save Log</button>
-            </div>
-        </div>
-    </div>
-
     <!-- DOCUMENT TEMPLATE (INVOICE / RECEIPT) -->
     <div id="doc-modal" class="hidden bg-white fixed inset-0 z-[80] overflow-y-auto">
         <!-- Header -->
@@ -480,7 +419,9 @@
             <table class="w-full text-left text-sm" id="doc-table">
                 <thead>
                     <tr class="border-b-2 border-slate-100 text-slate-400 uppercase text-[10px]">
-                        <!-- Headers populated dynamically -->
+                        <th class="py-2">Description</th>
+                        <th class="py-2">Remark</th>
+                        <th class="py-2 text-right">Amount</th>
                     </tr>
                 </thead>
                 <tbody id="doc-items" class="text-slate-600 font-medium"></tbody>
@@ -517,29 +458,17 @@
             <button onclick="sendReminder()" id="btn-reminder" class="hidden w-full py-2 bg-orange-100 text-orange-700 text-xs font-bold rounded-lg border border-orange-200">Send Reminder 1</button>
 
             <!-- Responsive Button Scroll Row -->
-            <div class="flex overflow-x-auto gap-2 w-full pb-1 hide-scrollbar">
-                <button onclick="closeDoc()" class="flex-none px-4 py-2 font-bold text-slate-500 bg-white border rounded-lg text-xs whitespace-nowrap">Close</button>
-                <button onclick="openEditInvoice()" id="btn-edit-inv" class="hidden flex-none px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold text-xs border border-blue-100 whitespace-nowrap">Edit</button>
+            <div class="grid grid-cols-2 gap-2 w-full pb-1">
+                <button onclick="closeDoc()" class="px-4 py-2 font-bold text-slate-500 bg-white border rounded-lg text-xs whitespace-nowrap">Close</button>
+                <button onclick="openEditInvoice()" id="btn-edit-inv" class="hidden px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-bold text-xs border border-blue-100 whitespace-nowrap">Edit</button>
                 
-                <button onclick="shareWhatsApp()" class="flex-none px-4 py-2 bg-green-500 text-white rounded-lg font-bold shadow-sm text-xs whitespace-nowrap">WhatsApp</button>
-                <button onclick="window.print()" class="flex-none px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold shadow-sm text-xs whitespace-nowrap">PDF</button>
-                <button onclick="openPaymentModal()" id="btn-record-pay" class="hidden flex-none px-4 py-2 bg-slate-800 text-white rounded-lg font-bold shadow-md text-xs whitespace-nowrap border-2 border-slate-700">Record Payment</button>
+                <button onclick="shareWhatsApp()" class="px-4 py-2 bg-green-500 text-white rounded-lg font-bold shadow-sm text-xs whitespace-nowrap">WhatsApp</button>
+                <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold shadow-sm text-xs whitespace-nowrap">PDF</button>
+                <button onclick="openPaymentModal()" id="btn-record-pay" class="hidden col-span-2 px-4 py-2 bg-slate-800 text-white rounded-lg font-bold shadow-md text-xs whitespace-nowrap border-2 border-slate-700">Record Payment</button>
                 
-                <div id="btn-delete-inv" class="hidden flex-none">
-                    <button onclick="customConfirm('Delete this receipt permanently?', deleteCurrentInvoice)" class="px-4 py-2 text-red-500 border border-red-100 rounded-lg font-bold text-xs bg-red-50 whitespace-nowrap">Delete</button>
+                <div id="btn-delete-inv" class="hidden col-span-2">
+                    <button onclick="customConfirm('Delete this receipt permanently?', deleteCurrentInvoice)" class="w-full px-4 py-2 text-red-500 border border-red-100 rounded-lg font-bold text-xs bg-red-50 whitespace-nowrap">Delete</button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CUSTOM CONFIRM MODAL -->
-    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-[100] backdrop-blur-sm">
-        <div class="bg-white w-full max-w-xs rounded-[2rem] p-6 text-center shadow-2xl modal-box">
-            <h3 class="text-lg font-black text-slate-800 mb-2">Are you sure?</h3>
-            <p id="confirm-msg" class="text-sm text-slate-500 mb-6">This action cannot be undone.</p>
-            <div class="flex gap-2">
-                <button onclick="closeModal('confirm-modal')" class="flex-1 py-3 font-bold text-slate-400 bg-slate-50 rounded-xl">Cancel</button>
-                <button id="confirm-yes-btn" class="flex-1 py-3 font-bold text-white bg-red-500 rounded-xl shadow-lg">Yes</button>
             </div>
         </div>
     </div>
@@ -558,7 +487,6 @@
         let currentStudentId = null;
         let currentInvoiceId = null; 
         let currentDocData = null;
-        let currentLogFilter = 'unreported'; 
         let confirmCallback = null;
 
         // --- CORE ---
@@ -580,7 +508,7 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Resize image using Canvas to save storage space
+                // Resize image using Canvas
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
@@ -601,7 +529,7 @@
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // Compress
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
                     settings.logo = dataUrl;
                     saveSettings();
                     renderLogo();
@@ -678,18 +606,6 @@
             document.getElementById('view-home').classList.add('hidden');
             document.getElementById('view-details').classList.remove('hidden');
             document.getElementById('home-btn').classList.remove('hidden');
-            renderDetails();
-        }
-
-        function switchTab(tab) {
-            document.getElementById('tab-academic').className = tab === 'academic' ? "flex-1 py-2 rounded-lg text-xs font-bold shadow-sm bg-white text-slate-800 transition-all" : "flex-1 py-2 rounded-lg text-xs font-bold text-slate-500 transition-all";
-            document.getElementById('tab-financial').className = tab === 'financial' ? "flex-1 py-2 rounded-lg text-xs font-bold shadow-sm bg-white text-slate-800 transition-all" : "flex-1 py-2 rounded-lg text-xs font-bold text-slate-500 transition-all";
-            document.getElementById('content-academic').className = tab === 'academic' ? "space-y-4" : "hidden space-y-4";
-            document.getElementById('content-financial').className = tab === 'financial' ? "space-y-4" : "hidden space-y-4";
-        }
-
-        function updateLogFilter(val) {
-            currentLogFilter = val;
             renderDetails();
         }
 
@@ -771,44 +687,20 @@
             document.getElementById('detail-name').innerText = s.name;
             document.getElementById('detail-parent').innerText = s.parent;
             document.getElementById('detail-grade').innerText = s.grade || 'N/A';
-            document.getElementById('detail-rate').innerText = `${format(s.rate, curr)} / ${s.billingFreq || 'Cycle'}`; // Updated Label
+            document.getElementById('detail-rate').innerText = `${format(s.rate, curr)} / ${s.billingFreq || 'Cycle'}`; 
             document.getElementById('detail-start').innerText = s.startDate ? new Date(s.startDate).toLocaleDateString('en-IN') : 'N/A';
             document.getElementById('detail-freq').innerText = s.billingFreq || 'Monthly';
             
-            const sessionList = document.getElementById('session-history');
-            sessionList.innerHTML = '';
-            
-            const now = new Date();
-            let filteredSessions = (s.sessions || []);
-
-            if (currentLogFilter === 'unreported') {
-                filteredSessions = filteredSessions.filter(x => x.status === 'unreported');
-            } else if (currentLogFilter === 'current_month') {
-                filteredSessions = filteredSessions.filter(x => {
-                    const d = new Date(x.date);
-                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                });
-            } else if (currentLogFilter === 'last_month') {
-                const lastMonth = new Date();
-                lastMonth.setMonth(now.getMonth() - 1);
-                filteredSessions = filteredSessions.filter(x => {
-                    const d = new Date(x.date);
-                    return d.getMonth() === lastMonth.getMonth() && d.getFullYear() === lastMonth.getFullYear();
-                });
+            // Link phone button
+            const phoneBtn = document.getElementById('detail-phone-btn');
+            if (s.phone) {
+                const p = s.phone.replace('+','').replace(/\s/g,'');
+                phoneBtn.href = `https://wa.me/${p}`;
+                phoneBtn.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                phoneBtn.href = '#';
+                phoneBtn.classList.add('opacity-50', 'pointer-events-none');
             }
-            
-            document.getElementById('log-count').innerText = `${filteredSessions.length} Found`;
-            
-            ([...filteredSessions].sort((a,b)=>new Date(b.date)-new Date(a.date))).forEach(sess => {
-                sessionList.innerHTML += `
-                    <div class="p-4 flex justify-between items-start">
-                        <div><div class="text-xs font-bold text-slate-400 mb-1">${new Date(sess.date).toLocaleDateString('en-IN')}</div><div class="text-sm font-semibold text-slate-800">${sess.topic}</div></div>
-                        <div class="flex items-center gap-2">
-                            <div class="text-[10px] font-bold uppercase px-2 py-1 rounded-lg ${sess.status === 'reported' ? 'text-green-500 bg-green-50' : 'text-orange-500 bg-orange-50'}">${sess.status}</div>
-                            <button onclick="customConfirm('Delete log entry?', () => deleteSession('${sess.id}'))" class="text-slate-300 hover:text-red-400 font-bold px-1">✕</button>
-                        </div>
-                    </div>`;
-            });
 
             const invList = document.getElementById('invoice-history');
             invList.innerHTML = '';
@@ -834,76 +726,75 @@
             });
         }
 
-        // --- ACADEMIC LOGIC ---
-        function saveSession() {
-            const date = document.getElementById('session-date').value;
-            const topic = document.getElementById('session-topic').value;
-            if(date && topic) {
-                const s = students.find(st => st.id === currentStudentId);
-                if(!s.sessions) s.sessions = [];
-                s.sessions.push({ id: Date.now().toString(), date, topic, status: 'unreported' });
-                save(); closeModal('add-session-modal'); renderDetails();
-            }
+        // --- STUDENT MANAGEMENT ---
+        function openEditStudentModal() {
+            const s = students.find(st => st.id === currentStudentId);
+            if(!s) return;
+            
+            document.getElementById('edit-name').value = s.name;
+            document.getElementById('edit-grade').value = s.grade || '';
+            document.getElementById('edit-parent').value = s.parent || '';
+            document.getElementById('edit-phone').value = s.phone || '';
+            
+            // Currency setup
+            const sel = document.getElementById('edit-currency'); sel.innerHTML='';
+            Object.keys(settings.currencies).forEach(c=> {
+                const opt = document.createElement('option');
+                opt.value=c; opt.innerText=c;
+                if(c === s.currency) opt.selected = true;
+                sel.appendChild(opt);
+            });
+
+            document.getElementById('edit-rate').value = s.rate;
+            document.getElementById('edit-total-sessions').value = s.totalSessions || '';
+            document.getElementById('edit-start-date').value = s.startDate ? s.startDate : '';
+            
+            const freqSel = document.getElementById('edit-billing-freq');
+            freqSel.value = s.billingFreq || 'Monthly';
+            
+            document.getElementById('edit-student-modal').classList.replace('hidden', 'flex');
         }
 
-        function deleteSession(sessId) {
-            const s = students.find(st => st.id === currentStudentId);
-            s.sessions = s.sessions.filter(sess => sess.id !== sessId);
-            save(); renderDetails();
-        }
-        
-        function shareLogReport() {
-            const s = students.find(st => st.id === currentStudentId);
-            const now = new Date();
-            let itemsToShare = (s.sessions || []);
-
-            // Apply filters logic...
-            if (currentLogFilter === 'unreported') itemsToShare = itemsToShare.filter(x => x.status === 'unreported');
-            else if (currentLogFilter === 'current_month') itemsToShare = itemsToShare.filter(x => new Date(x.date).getMonth() === now.getMonth());
-            else if (currentLogFilter === 'last_month') itemsToShare = itemsToShare.filter(x => new Date(x.date).getMonth() === now.getMonth() - 1);
-
-            if(!itemsToShare.length) return alert("No sessions found for current filter.");
-            
-            // Format dynamic period text for header
-            let periodText = "";
-            if(currentLogFilter === 'last_month') periodText = "taken Last Month";
-            else if(currentLogFilter === 'current_month') periodText = "taken This Month";
-            else periodText = "taken recently";
-
-            currentDocData = { 
-                title: "SESSION REPORT", 
-                type: 'log', 
-                student: s, 
-                periodText: periodText,
-                items: itemsToShare.map(x => ({ desc: `${new Date(x.date).toLocaleDateString('en-IN')}: ${x.topic}`, amount: '' })) 
-            };
-            
-            renderDoc(currentDocData);
-            
-            if(currentLogFilter === 'unreported') { 
-                customConfirm("Mark these sessions as Reported?", () => {
-                    itemsToShare.forEach(x => x.status = 'reported'); 
-                    save(); renderDetails(); 
-                });
-            }
+        function saveStudentDetails() {
+             const s = students.find(st => st.id === currentStudentId);
+             if(!s) return;
+             
+             s.name = document.getElementById('edit-name').value;
+             s.grade = document.getElementById('edit-grade').value;
+             s.parent = document.getElementById('edit-parent').value;
+             s.phone = document.getElementById('edit-phone').value;
+             s.currency = document.getElementById('edit-currency').value;
+             s.rate = parseFloat(document.getElementById('edit-rate').value) || 0;
+             s.totalSessions = document.getElementById('edit-total-sessions').value;
+             s.startDate = document.getElementById('edit-start-date').value;
+             s.billingFreq = document.getElementById('edit-billing-freq').value;
+             
+             save();
+             closeModal('edit-student-modal');
+             renderDetails();
         }
 
         // --- FINANCIAL LOGIC ---
         function autoFillInvoice(id) {
             currentStudentId = id;
-            switchTab('financial');
             showDetails(id);
             const s = students.find(st => st.id === id);
             
             // Calc dates based on next billing date
             const startDate = s.nextBillingDate ? new Date(s.nextBillingDate) : new Date();
-            const endDate = new Date(startDate);
-            if(s.billingFreq === 'Weekly') endDate.setDate(endDate.getDate() + 7);
-            else if(s.billingFreq === 'Daily') endDate.setDate(endDate.getDate() + 1);
-            else endDate.setMonth(endDate.getMonth() + 1);
             
-            // Auto Title
-            const desc = `${s.billingFreq} Fees: ${startDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'})} - ${endDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'})}`;
+            // Calculate Next Cycle Start (The date the NEXT bill begins)
+            const nextCycleStart = new Date(startDate);
+            if(s.billingFreq === 'Weekly') nextCycleStart.setDate(nextCycleStart.getDate() + 7);
+            else if(s.billingFreq === 'Daily') nextCycleStart.setDate(nextCycleStart.getDate() + 1);
+            else nextCycleStart.setMonth(nextCycleStart.getMonth() + 1);
+
+            // Calculate Display End Date (The last day covered by THIS bill = Next Start - 1 Day)
+            const displayEndDate = new Date(nextCycleStart);
+            displayEndDate.setDate(displayEndDate.getDate() - 1);
+            
+            // Auto Title using Display End Date
+            const desc = `${s.billingFreq} Fees: ${startDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'})} - ${displayEndDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'})}`;
             
             document.getElementById('inv-sessions').value = s.totalSessions || 8;
             document.getElementById('inv-desc').value = desc;
@@ -926,15 +817,21 @@
             
             // Calculate Period Dates for Line Item
             const startDate = s.nextBillingDate ? new Date(s.nextBillingDate) : new Date();
-            const endDate = new Date(startDate);
-            if(s.billingFreq === 'Weekly') endDate.setDate(endDate.getDate() + 7);
-            else if(s.billingFreq === 'Daily') endDate.setDate(endDate.getDate() + 1);
-            else endDate.setMonth(endDate.getMonth() + 1); // Monthly
+            
+            // Calculate Next Cycle Start
+            const nextCycleStart = new Date(startDate);
+            if(s.billingFreq === 'Weekly') nextCycleStart.setDate(nextCycleStart.getDate() + 7);
+            else if(s.billingFreq === 'Daily') nextCycleStart.setDate(nextCycleStart.getDate() + 1);
+            else nextCycleStart.setMonth(nextCycleStart.getMonth() + 1); // Monthly
+            
+            // Calculate Display End Date
+            const displayEndDate = new Date(nextCycleStart);
+            displayEndDate.setDate(displayEndDate.getDate() - 1);
             
             // Format dates
             const startStr = startDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
-            const endStr = endDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
-            const lineItemDesc = `${s.billingFreq || 'Monthly'} Fees: ${startStr} to ${endStr} - ${sessCount} Sessions`;
+            const endStr = displayEndDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
+            const lineItemDesc = `${s.billingFreq || 'Monthly'} Fees: ${startStr} to ${endStr} (${sessCount} Sessions)`;
 
             const newInv = {
                 id: Date.now(),
@@ -949,8 +846,8 @@
             if(!s.invoices) s.invoices = [];
             s.invoices.push(newInv);
             
-            // Update Next Billing Date to prevent drift (always use calculated end date)
-            s.nextBillingDate = endDate.toISOString();
+            // Update Next Billing Date to prevent drift (always use calculated Next Cycle Start)
+            s.nextBillingDate = nextCycleStart.toISOString();
 
             save();
             closeModal('generate-invoice-modal');
@@ -1008,6 +905,12 @@
             inv.total = parseFloat(document.getElementById('edit-inv-total').value);
             inv.remarks = document.getElementById('edit-inv-remark').value;
             
+            // Recalculate Status based on new total
+            const paid = inv.amountPaid || 0;
+            if (paid >= inv.total) inv.status = 'paid';
+            else if (paid > 0) inv.status = 'partial';
+            else inv.status = 'pending';
+
             save();
             closeModal('edit-invoice-modal');
             viewDocument(currentInvoiceId); // Refresh view
@@ -1017,57 +920,37 @@
         function renderDoc(data) {
             document.getElementById('doc-title').innerText = data.title;
             // Handle ID safely
-            document.getElementById('doc-id').innerText = data.id || (data.inv ? data.inv.id : 'LOG');
-            document.getElementById('doc-date').innerText = new Date(data.date || (data.inv ? data.inv.date : new Date())).toLocaleDateString('en-IN');
+            document.getElementById('doc-id').innerText = data.inv.id;
+            document.getElementById('doc-date').innerText = new Date(data.inv.date).toLocaleDateString('en-IN');
             
             document.getElementById('doc-parent').innerText = data.student.parent;
             document.getElementById('doc-student').innerText = data.student.name;
             document.getElementById('doc-grade').innerText = data.student.grade || '';
             
-            // Dynamic Table Headers
-            const thead = document.querySelector('#doc-table thead tr');
             const tbody = document.getElementById('doc-items'); 
             tbody.innerHTML = '';
 
-            if (data.type === 'log') {
-                thead.innerHTML = `<th class="py-2">Session Details</th>`;
-                data.items.forEach(i => { 
-                    tbody.innerHTML += `<tr class="border-b border-slate-50"><td class="py-3">${i.desc}</td></tr>`; 
-                });
-                // Hide Footer Totals
-                document.getElementById('doc-footer').classList.add('hidden');
-            } else {
-                thead.innerHTML = `
-                    <th class="py-2">Description</th>
-                    <th class="py-2">Remark</th>
-                    <th class="py-2 text-right">Amount</th>`;
-                
-                data.items.forEach(i => { 
-                    tbody.innerHTML += `
-                    <tr class="border-b border-slate-50">
-                        <td class="py-3">${i.desc}</td>
-                        <td class="py-3 text-xs text-slate-400"></td> 
-                        <td class="py-3 text-right">${typeof i.amount === 'number' ? format(i.amount, data.currency || data.student.currency) : ''}</td>
-                    </tr>`; 
-                });
-                document.getElementById('doc-footer').classList.remove('hidden');
-            }
+            data.items.forEach(i => { 
+                tbody.innerHTML += `
+                <tr class="border-b border-slate-50">
+                    <td class="py-3">${i.desc}</td>
+                    <td class="py-3 text-xs text-slate-400"></td> 
+                    <td class="py-3 text-right">${typeof i.amount === 'number' ? format(i.amount, data.currency || data.student.currency) : ''}</td>
+                </tr>`; 
+            });
             
-            // Total handling (Only for financial)
-            if (data.type !== 'log') {
-                const totalText = typeof data.total === 'number' ? format(data.total, data.currency || data.student.currency) : '';
-                document.getElementById('doc-total').innerText = totalText;
-                
-                const rowPaid = document.getElementById('row-paid');
-                const rowBal = document.getElementById('row-balance');
-                const curr = data.currency || data.student.currency;
+            const totalText = typeof data.total === 'number' ? format(data.total, data.currency || data.student.currency) : '';
+            document.getElementById('doc-total').innerText = totalText;
+            
+            const rowPaid = document.getElementById('row-paid');
+            const rowBal = document.getElementById('row-balance');
+            const curr = data.currency || data.student.currency;
 
-                if(data.paid > 0) {
-                    rowPaid.classList.remove('hidden'); rowBal.classList.remove('hidden');
-                    document.getElementById('doc-paid').innerText = format(data.paid, curr);
-                    document.getElementById('doc-balance').innerText = format(data.total - data.paid, curr);
-                } else { rowPaid.classList.add('hidden'); rowBal.classList.add('hidden'); }
-            }
+            if(data.paid > 0) {
+                rowPaid.classList.remove('hidden'); rowBal.classList.remove('hidden');
+                document.getElementById('doc-paid').innerText = format(data.paid, curr);
+                document.getElementById('doc-balance').innerText = format(data.total - data.paid, curr);
+            } else { rowPaid.classList.add('hidden'); rowBal.classList.add('hidden'); }
 
             const txnBox = document.getElementById('doc-txn-info');
             if(data.inv && data.inv.txnDetails && data.inv.txnDetails.length > 0) {
@@ -1096,12 +979,7 @@
                 bank.classList.add('hidden');
                 note.innerText = "Payment Received. Thank you!";
                 docSubtitle.innerText = "Received From";
-            } else {
-                // Log Report
-                bank.classList.add('hidden');
-                note.innerText = `Details of sessions ${data.periodText || ''}.`;
-                docSubtitle.innerText = "Report For";
-            }
+            } 
             document.getElementById('doc-modal').classList.remove('hidden');
         }
 
@@ -1153,7 +1031,7 @@
             document.getElementById('btn-reminder').innerText = `Send Reminder ${inv.reminders + 1}`;
 
             const pending = inv.total - (inv.amountPaid || 0);
-            let text = `*REMINDER ${inv.reminders}: GeniusHub Classes*\n`;
+            let text = `*REMINDER ${inv.reminders}: GeniusHub Records*\n`;
             text += `Dear Parent,\nThis is a gentle reminder regarding the invoice for ${s.name}.\n`;
             text += `*Pending Amount: ${format(pending, s.currency)}*\n`;
             text += `Invoice Date: ${new Date(inv.date).toLocaleDateString('en-IN')}\n\n`;
@@ -1166,15 +1044,10 @@
         function shareWhatsApp() {
             if(!currentDocData) return;
             const d = currentDocData;
-            let text = `*${d.title} - GeniusHub Classes*\nStud: ${d.student.name}\n`;
+            let text = `*${d.title} - GeniusHub Records*\nStudent: ${d.student.name}\n`;
             
-            if (d.type === 'log') {
-                 d.items.forEach(i => text += `${i.desc}\n`);
-                 text += `\n${d.periodText || ''}`;
-            } else {
-                if(d.type === 'invoice') text += `Total Due: ${format(d.total, d.currency)}\n\nPayment Details:\n${settings.bankDetails}`;
-                else text += `Paid: ${format(d.paid, d.currency)}\nBalance: ${format(d.total - d.paid, d.currency)}\n\nPayment Received. Thanks!`;
-            }
+            if(d.type === 'invoice') text += `Total Due: ${format(d.total, d.currency)}\n\nPayment Details:\n${settings.bankDetails}`;
+            else text += `Paid: ${format(d.paid, d.currency)}\nBalance: ${format(d.total - d.paid, d.currency)}\n\nPayment Received. Thanks!`;
             
             window.open(`https://wa.me/${d.student.phone?d.student.phone.replace('+','').replace(/\s/g,''):''}?text=${encodeURIComponent(text)}`, '_blank');
         }
@@ -1226,10 +1099,10 @@
                     rate: parseInt(rate), currency: document.getElementById('new-currency').value,
                     startDate: startDateStr, totalSessions: document.getElementById('new-total-sessions').value,
                     billingFreq: document.getElementById('new-billing-freq').value,
-                    nextBillingDate: nextBilling, sessions: [], invoices: []
+                    nextBillingDate: nextBilling, invoices: []
                 });
                 save(); closeModal('add-student-modal');
-                currentStudentId = newId; switchTab('financial'); setTimeout(openGenerateInvoiceModal, 300);
+                currentStudentId = newId; setTimeout(openGenerateInvoiceModal, 300);
             }
         }
         function deleteStudent() { 
@@ -1247,11 +1120,10 @@
             document.getElementById('new-start-date').valueAsDate = new Date();
             document.getElementById('add-student-modal').classList.replace('hidden','flex');
         }
-        function openAddSessionModal() { document.getElementById('session-date').valueAsDate = new Date(); document.getElementById('session-topic').value=""; document.getElementById('add-session-modal').classList.replace('hidden','flex'); }
         function saveBankDetails() { settings.bankDetails = document.getElementById('setting-bank-details').value; saveSettings(); alert('Saved'); }
 
         renderHome();
-        renderLogo(); // Initialize logo on load
+        renderLogo(); 
     </script>
 </body>
 </html>
