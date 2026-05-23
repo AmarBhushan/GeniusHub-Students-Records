@@ -44,19 +44,17 @@
         /* Make the whole input clickable on desktop to open picker */
         input[type="date"]::-webkit-calendar-picker-indicator {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            color: transparent;
-            background: transparent;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%;
+            color: transparent; background: transparent;
             cursor: pointer;
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen pb-32">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-2xl transition-all duration-300 translate-y-20 opacity-0 z-[150] pointer-events-none whitespace-nowrap"></div>
 
     <!-- APP HEADER -->
     <header class="bg-indigo-600 p-6 pt-12 pb-8 rounded-b-[2.5rem] shadow-xl text-white sticky top-0 z-40">
@@ -105,15 +103,22 @@
                 <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
                 <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Upcoming Renewals</h3>
             </div>
-            <div id="upcoming-list" class="space-y-3 mb-6">
-                <!-- Populated by JS -->
-            </div>
+            <div id="upcoming-list" class="space-y-3 mb-6"></div>
         </div>
 
-        <!-- Student List -->
+        <!-- Student List (Active) -->
         <div>
-            <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-3">All Students</h3>
+            <div class="flex justify-between items-end mb-3">
+                <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Active Students</h3>
+                <button onclick="toggleInactive()" id="toggle-inactive-btn" class="text-[10px] font-bold text-slate-500 bg-slate-200 px-2 py-1 rounded hidden">Show Inactive</button>
+            </div>
             <div id="student-list" class="space-y-3"></div>
+        </div>
+
+        <!-- Student List (Inactive) -->
+        <div id="inactive-section-container" class="hidden pt-6 border-t border-slate-200">
+            <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-3">Inactive Students</h3>
+            <div id="inactive-student-list" class="space-y-3 opacity-75 grayscale-[30%]"></div>
         </div>
     </div>
 
@@ -123,13 +128,14 @@
         <div class="bg-white p-5 rounded-[2rem] shadow-lg border border-slate-100 text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-br from-indigo-500 to-purple-600 opacity-10"></div>
             
+            <div id="detail-status-badge" class="absolute top-4 left-4 z-20 text-[10px] font-bold px-2 py-1 rounded-lg uppercase bg-green-100 text-green-600">Active</div>
+
             <button onclick="openEditStudentModal()" class="absolute top-4 right-4 z-20 bg-white/50 p-2 rounded-full text-indigo-700 hover:bg-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
             </button>
 
             <div class="relative z-10">
-                <!-- Added pr-12 to prevent overlap with absolute edit button -->
-                <div class="flex justify-between items-start pr-12">
+                <div class="flex justify-between items-start mt-6">
                      <div class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">Since: <span id="detail-start">--</span></div>
                      <div class="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg uppercase" id="detail-freq">--</div>
                 </div>
@@ -149,8 +155,12 @@
 
         <!-- INVOICE ACTIONS -->
         <div class="space-y-4">
-             <button onclick="openGenerateInvoiceModal()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200">
+             <button id="btn-generate-inv" onclick="openGenerateInvoiceModal()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200">
                 📄 Generate Invoice
+             </button>
+
+             <button id="btn-reactivate" onclick="reactivateStudent()" class="hidden w-full py-3 bg-green-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-green-200">
+                ✅ Reactivate Student
              </button>
              
              <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
@@ -160,8 +170,11 @@
                 <div id="invoice-history" class="divide-y divide-slate-50 max-h-[400px] overflow-y-auto"></div>
              </div>
         </div>
-
-        <button onclick="customConfirm('Remove this student permanently?', deleteStudent)" class="w-full py-3 text-red-400 text-xs font-bold opacity-60">Remove Student</button>
+        
+        <div class="space-y-2 pt-2">
+            <button id="btn-deactivate" onclick="customConfirm('Deactivate this student? Their data will be saved, but they will be marked as inactive.', deactivateStudent)" class="w-full py-3 text-orange-500 text-xs font-bold bg-orange-50 rounded-xl border border-orange-100">Deactivate (Keep Data)</button>
+            <button onclick="customConfirm('Delete this student permanently? ALL their invoices will be lost.', deleteStudent)" class="w-full py-3 text-red-400 text-xs font-bold opacity-60">Permanently Delete</button>
+        </div>
     </div>
 
     <!-- CUSTOM CONFIRM MODAL -->
@@ -171,7 +184,7 @@
             <p id="confirm-msg" class="text-sm text-slate-500 mb-6">This action cannot be undone.</p>
             <div class="flex gap-2">
                 <button onclick="closeModal('confirm-modal')" class="flex-1 py-3 font-bold text-slate-400 bg-slate-50 rounded-xl">Cancel</button>
-                <button id="confirm-yes-btn" class="flex-1 py-3 font-bold text-white bg-red-500 rounded-xl shadow-lg">Yes</button>
+                <button id="confirm-yes-btn" class="flex-1 py-3 font-bold text-white bg-indigo-600 rounded-xl shadow-lg">Confirm</button>
             </div>
         </div>
     </div>
@@ -410,7 +423,7 @@
                 <p class="text-xs text-slate-500">Set rates to calculate "Total Due" in INR.</p>
                 <div class="space-y-2" id="currency-list"></div>
                 <div class="pt-2 border-t border-slate-100">
-                    <button onclick="saveSettings(); alert('Rates Saved!')" class="w-full mb-3 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Save Currency Rates</button>
+                    <button onclick="saveSettings(); showToast('Rates Saved!')" class="w-full mb-3 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold">Save Currency Rates</button>
                     
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Add Currency</label>
                     <div class="flex gap-2 mt-1">
@@ -527,17 +540,39 @@
         let currentInvoiceId = null; 
         let currentDocData = null;
         let confirmCallback = null;
+        let showingInactive = false;
 
         // --- CORE ---
         function save() { localStorage.setItem('gh_students', JSON.stringify(students)); renderHome(); }
         function saveSettings() { localStorage.setItem('gh_settings', JSON.stringify(settings)); renderLogo(); }
         function format(num, curr='INR') { return new Intl.NumberFormat('en-US', { style:'currency', currency:curr, maximumFractionDigits:0 }).format(num); }
         
+        function showToast(msg, isError=false) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.className = `fixed bottom-4 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl text-sm font-bold shadow-2xl transition-all duration-300 z-[150] whitespace-nowrap ${isError ? 'bg-red-500 text-white' : 'bg-slate-800 text-white'}`;
+            t.style.transform = 'translate(-50%, 0)';
+            t.style.opacity = '1';
+            setTimeout(() => {
+                t.style.transform = 'translate(-50%, 20px)';
+                t.style.opacity = '0';
+            }, 3000);
+        }
+
         function customConfirm(msg, callback) {
             document.getElementById('confirm-msg').innerText = msg;
             confirmCallback = callback;
             document.getElementById('confirm-modal').classList.replace('hidden', 'flex');
-            document.getElementById('confirm-yes-btn').onclick = () => { callback(); closeModal('confirm-modal'); };
+            
+            // Clean up old listeners
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            const newBtn = yesBtn.cloneNode(true);
+            yesBtn.parentNode.replaceChild(newBtn, yesBtn);
+            
+            newBtn.onclick = () => { 
+                if (confirmCallback) confirmCallback(); 
+                closeModal('confirm-modal'); 
+            };
         }
 
         // --- LOGO HANDLING ---
@@ -547,16 +582,12 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Resize image using Canvas
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    
-                    // Max dimension 200px
                     const MAX_SIZE = 200;
-                    let width = img.width;
-                    let height = img.height;
+                    let width = img.width, height = img.height;
                     
                     if (width > height) {
                         if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
@@ -564,25 +595,17 @@
                         if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
                     }
                     
-                    canvas.width = width;
-                    canvas.height = height;
+                    canvas.width = width; canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
-                    
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                    settings.logo = dataUrl;
-                    saveSettings();
-                    renderLogo();
+                    settings.logo = canvas.toDataURL('image/jpeg', 0.8);
+                    saveSettings(); renderLogo();
                 }
                 img.src = e.target.result;
             }
             reader.readAsDataURL(file);
         }
 
-        function clearLogo() {
-            settings.logo = null;
-            saveSettings();
-            renderLogo();
-        }
+        function clearLogo() { settings.logo = null; saveSettings(); renderLogo(); }
 
         function renderLogo() {
             const headerLogo = document.getElementById('header-logo');
@@ -595,15 +618,14 @@
                 docLogo.src = settings.logo; docLogo.classList.remove('hidden');
                 preview.src = settings.logo; previewContainer.classList.remove('hidden');
             } else {
-                headerLogo.classList.add('hidden');
-                docLogo.classList.add('hidden');
+                headerLogo.classList.add('hidden'); docLogo.classList.add('hidden');
                 previewContainer.classList.add('hidden');
             }
         }
 
         // --- BACKUP & RESTORE ---
         function backupData() {
-            const data = { students: students, settings: settings, version: 1.0 };
+            const data = { students: students, settings: settings, version: 1.1 };
             const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -620,13 +642,12 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if(data.students && data.settings) {
-                        students = data.students;
-                        settings = data.settings;
+                        students = data.students; settings = data.settings;
                         save(); saveSettings();
-                        alert("Data restored successfully!");
+                        showToast("Data restored successfully!");
                         closeModal('settings-modal');
-                    } else { alert("Invalid backup file."); }
-                } catch(err) { alert("Error reading file."); }
+                    } else { showToast("Invalid backup file.", true); }
+                } catch(err) { showToast("Error reading file.", true); }
             };
             reader.readAsText(file);
         }
@@ -647,22 +668,47 @@
             document.getElementById('home-btn').classList.remove('hidden');
             renderDetails();
         }
+        
+        function toggleInactive() {
+            showingInactive = !showingInactive;
+            const section = document.getElementById('inactive-section-container');
+            const btn = document.getElementById('toggle-inactive-btn');
+            if (showingInactive) {
+                section.classList.remove('hidden');
+                btn.innerText = "Hide Inactive";
+                btn.classList.replace('bg-slate-200', 'bg-indigo-100');
+                btn.classList.replace('text-slate-500', 'text-indigo-600');
+            } else {
+                section.classList.add('hidden');
+                btn.innerText = "Show Inactive";
+                btn.classList.replace('bg-indigo-100', 'bg-slate-200');
+                btn.classList.replace('text-indigo-600', 'text-slate-500');
+            }
+        }
 
         // --- RENDERERS ---
         function renderHome() {
             const list = document.getElementById('student-list');
+            const inactiveList = document.getElementById('inactive-student-list');
             const upcomingList = document.getElementById('upcoming-list');
             const upcomingSection = document.getElementById('upcoming-section');
+            const toggleBtn = document.getElementById('toggle-inactive-btn');
             
             list.innerHTML = '';
+            inactiveList.innerHTML = '';
             upcomingList.innerHTML = '';
-            let totalPendingInINR = 0;
             
-            if (students.length === 0) list.innerHTML = `<div class="text-center p-10 opacity-40 italic">No students yet.</div>`;
-
+            let totalPendingInINR = 0;
             let forecasts = [];
+            
+            const activeStudents = students.filter(s => s.isActive !== false);
+            const inactiveStudents = students.filter(s => s.isActive === false);
 
-            students.forEach(s => {
+            if (activeStudents.length === 0) list.innerHTML = `<div class="text-center p-10 opacity-40 italic">No active students.</div>`;
+            if (inactiveStudents.length > 0) toggleBtn.classList.remove('hidden'); else toggleBtn.classList.add('hidden');
+
+            // Render Active
+            activeStudents.forEach(s => {
                 const currency = s.currency || 'INR';
                 const rate = settings.currencies[currency] || 0;
                 
@@ -671,19 +717,33 @@
                 
                 if(rate > 0) totalPendingInINR += (pendingAmt * rate);
 
-                if(s.nextBillingDate) {
-                    forecasts.push({ student: s, date: new Date(s.nextBillingDate) });
-                }
+                if(s.nextBillingDate) forecasts.push({ student: s, date: new Date(s.nextBillingDate) });
 
                 const div = document.createElement('div');
                 div.className = "bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center cursor-pointer active:scale-[0.98] transition-transform";
                 div.onclick = () => showDetails(s.id);
-                div.innerHTML = `<br>                    <div><h4 class="font-bold text-slate-800 text-lg">${s.name}</h4><p class="text-xs text-slate-400 font-medium">${s.grade ? 'Grade '+s.grade : s.parent}</p></div><br>                    <div class="text-right"><br>                        ${pendingAmt > 0 ? `<div class="text-orange-500 font-black text-sm">${format(pendingAmt, currency)}</div><div class="text-[10px] font-bold text-orange-300 uppercase">Due</div>` : `<div class="text-green-500 font-bold text-xs bg-green-50 px-2 py-1 rounded-lg">All Paid</div>`}<br>                    </div>`;
+                div.innerHTML = `
+                    <div><h4 class="font-bold text-slate-800 text-lg">${s.name}</h4><p class="text-xs text-slate-400 font-medium">${s.grade ? 'Grade '+s.grade : s.parent}</p></div>
+                    <div class="text-right">
+                        ${pendingAmt > 0 ? `<div class="text-orange-500 font-black text-sm">${format(pendingAmt, currency)}</div><div class="text-[10px] font-bold text-orange-300 uppercase">Due</div>` : `<div class="text-green-500 font-bold text-xs bg-green-50 px-2 py-1 rounded-lg">All Paid</div>`}
+                    </div>`;
                 list.appendChild(div);
             });
-
-            forecasts.sort((a,b) => a.date - b.date);
             
+            // Render Inactive
+            if (inactiveStudents.length === 0) inactiveList.innerHTML = `<div class="text-center text-xs opacity-50 italic">None</div>`;
+            inactiveStudents.forEach(s => {
+                const div = document.createElement('div');
+                div.className = "bg-slate-100/50 p-4 rounded-xl border border-slate-200 flex justify-between items-center cursor-pointer";
+                div.onclick = () => showDetails(s.id);
+                div.innerHTML = `
+                    <div><h4 class="font-bold text-slate-600">${s.name}</h4><p class="text-[10px] text-slate-400 font-medium">${s.grade ? 'Grade '+s.grade : s.parent}</p></div>
+                    <div class="text-[10px] font-bold uppercase px-2 py-1 bg-slate-200 text-slate-500 rounded-lg">Inactive</div>`;
+                inactiveList.appendChild(div);
+            });
+
+            // Forecasts
+            forecasts.sort((a,b) => a.date - b.date);
             if(forecasts.length === 0) {
                 upcomingSection.classList.add('hidden');
             } else {
@@ -699,12 +759,18 @@
                     const daysLeft = Math.ceil((item.date - new Date()) / (1000 * 60 * 60 * 24));
                     const dueText = isDueNow ? "Due Now" : `Due in ${daysLeft} days`;
 
-                    upDiv.innerHTML = `<br>                        <div><br>                            <div class="text-sm font-black ${isDueNow ? 'text-indigo-900' : 'text-slate-700'}">${s.name}</div><br>                            <div class="text-[10px] font-bold ${isDueNow ? 'text-indigo-500' : 'text-slate-400'} uppercase">${dueText} (${item.date.toLocaleDateString('en-IN', {day:'numeric', month:'short'})})</div><br>                        </div><br>                        ${isDueNow ? `<button onclick="autoFillInvoice('${s.id}')" class="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow hover:bg-indigo-700">Create</button>` : ''}<br>                    `;
+                    upDiv.innerHTML = `
+                        <div>
+                            <div class="text-sm font-black ${isDueNow ? 'text-indigo-900' : 'text-slate-700'}">${s.name}</div>
+                            <div class="text-[10px] font-bold ${isDueNow ? 'text-indigo-500' : 'text-slate-400'} uppercase">${dueText} (${item.date.toLocaleDateString('en-IN', {day:'numeric', month:'short'})})</div>
+                        </div>
+                        ${isDueNow ? `<button onclick="autoFillInvoice('${s.id}')" class="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow hover:bg-indigo-700">Create</button>` : ''}
+                    `;
                     upcomingList.appendChild(upDiv);
                 });
             }
 
-            document.getElementById('total-students').innerText = students.length;
+            document.getElementById('total-students').innerText = activeStudents.length;
             document.getElementById('total-pending').innerText = format(totalPendingInINR, 'INR');
         }
 
@@ -712,6 +778,7 @@
             const s = students.find(st => st.id === currentStudentId);
             if (!s) return showHome();
             const curr = s.currency || 'INR';
+            const isInactive = s.isActive === false;
 
             document.getElementById('detail-name').innerText = s.name;
             document.getElementById('detail-parent').innerText = s.parent;
@@ -719,6 +786,26 @@
             document.getElementById('detail-rate').innerText = `${format(s.rate, curr)} / ${s.billingFreq || 'Cycle'}`; 
             document.getElementById('detail-start').innerText = s.startDate ? new Date(s.startDate).toLocaleDateString('en-IN') : 'N/A';
             document.getElementById('detail-freq').innerText = s.billingFreq || 'Monthly';
+            
+            // Status Badge & Action Buttons
+            const badge = document.getElementById('detail-status-badge');
+            const btnGen = document.getElementById('btn-generate-inv');
+            const btnReactivate = document.getElementById('btn-reactivate');
+            const btnDeactivate = document.getElementById('btn-deactivate');
+
+            if (isInactive) {
+                badge.innerText = "Inactive";
+                badge.className = "absolute top-4 left-4 z-20 text-[10px] font-bold px-2 py-1 rounded-lg uppercase bg-slate-200 text-slate-500";
+                btnGen.classList.add('hidden');
+                btnReactivate.classList.remove('hidden');
+                btnDeactivate.classList.add('hidden');
+            } else {
+                badge.innerText = "Active";
+                badge.className = "absolute top-4 left-4 z-20 text-[10px] font-bold px-2 py-1 rounded-lg uppercase bg-green-100 text-green-600";
+                btnGen.classList.remove('hidden');
+                btnReactivate.classList.add('hidden');
+                btnDeactivate.classList.remove('hidden');
+            }
             
             // Link phone button
             const phoneBtn = document.getElementById('detail-phone-btn');
@@ -741,11 +828,57 @@
                 const statusLabel = isPaid ? 'Paid' : (isPartial ? 'Partial' : 'Pending');
                 const statusColor = isPaid ? 'text-green-600 bg-green-100' : (isPartial ? 'text-blue-600 bg-blue-100' : 'text-orange-600 bg-orange-100');
                 
-                invList.innerHTML += `<br>                    <div class="p-4 flex justify-between items-center cursor-pointer hover:bg-slate-50" onclick="viewDocument('${inv.id}')"><br>                        <div><br>                            <div class="text-xs font-bold text-slate-400 mb-1">${new Date(inv.date).toLocaleDateString('en-IN')}</div><br>                            <div class="text-sm font-bold text-slate-800">${inv.desc}</div><br>                        </div><br>                        <div class="text-right"><br>                            <div class="font-black text-sm">${format(inv.total, curr)}</div><br>                            <div class="text-[10px] font-bold uppercase px-2 py-1 rounded-lg inline-block ${statusColor}">${statusLabel}</div><br>                        </div><br>                    </div>`;
+                invList.innerHTML += `
+                    <div class="p-4 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition-colors" onclick="viewDocument('${inv.id}')">
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 mb-1">${new Date(inv.date).toLocaleDateString('en-IN')}</div>
+                            <div class="text-sm font-bold text-slate-800">${inv.desc}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-black text-sm">${format(inv.total, curr)}</div>
+                            <div class="text-[10px] font-bold uppercase px-2 py-1 rounded-lg inline-block mt-1 ${statusColor}">${statusLabel}</div>
+                        </div>
+                    </div>`;
             });
         }
 
         // --- STUDENT MANAGEMENT ---
+        function deactivateStudent() {
+            const s = students.find(st => st.id === currentStudentId);
+            if(!s) return;
+            s.isActive = false;
+            save();
+            showToast("Student deactivated. Data preserved.");
+            showHome();
+        }
+
+        function reactivateStudent() {
+            const s = students.find(st => st.id === currentStudentId);
+            if(!s) return;
+            
+            // Mark as active
+            s.isActive = true;
+            // Pre-fill dates to today for a fresh cycle
+            const today = new Date().toISOString().split('T')[0];
+            s.startDate = today;
+            s.nextBillingDate = new Date().toISOString();
+            
+            save();
+            renderDetails();
+            showToast("Student reactivated! Please confirm their new billing details.");
+            
+            // Open edit modal to confirm the new start date and rates
+            setTimeout(openEditStudentModal, 300);
+        }
+
+        function deleteStudent() { 
+            const s = students.find(st => st.id === currentStudentId);
+            students = students.filter(st => st.id !== currentStudentId); 
+            save(); 
+            showToast("Student permanently deleted.", true);
+            showHome(); 
+        }
+
         function openEditStudentModal() {
             const s = students.find(st => st.id === currentStudentId);
             if(!s) return;
@@ -785,11 +918,19 @@
              s.currency = document.getElementById('edit-currency').value;
              s.rate = parseFloat(document.getElementById('edit-rate').value) || 0;
              s.totalSessions = document.getElementById('edit-total-sessions').value;
-             s.startDate = document.getElementById('edit-start-date').value;
+             
+             const newStartDate = document.getElementById('edit-start-date').value;
+             // If start date was changed, safely update nextBillingDate to match
+             if (s.startDate !== newStartDate) {
+                 s.startDate = newStartDate;
+                 s.nextBillingDate = new Date(newStartDate).toISOString();
+             }
+             
              s.billingFreq = document.getElementById('edit-billing-freq').value;
              
              save();
              closeModal('edit-student-modal');
+             showToast("Details updated.");
              renderDetails();
         }
 
@@ -799,20 +940,15 @@
             showDetails(id);
             const s = students.find(st => st.id === id);
             
-            // Calc dates based on next billing date
             const startDate = s.nextBillingDate ? new Date(s.nextBillingDate) : new Date();
-            
-            // Calculate Next Cycle Start (The date the NEXT bill begins)
             const nextCycleStart = new Date(startDate);
             if(s.billingFreq === 'Weekly') nextCycleStart.setDate(nextCycleStart.getDate() + 7);
             else if(s.billingFreq === 'Daily') nextCycleStart.setDate(nextCycleStart.getDate() + 1);
             else nextCycleStart.setMonth(nextCycleStart.getMonth() + 1);
 
-            // Calculate Display End Date (The last day covered by THIS bill = Next Start - 1 Day)
             const displayEndDate = new Date(nextCycleStart);
             displayEndDate.setDate(displayEndDate.getDate() - 1);
             
-            // Auto Title using Display End Date
             const desc = `${s.billingFreq} Fees: ${startDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'})} - ${displayEndDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'})}`;
             
             document.getElementById('inv-sessions').value = s.totalSessions || 8;
@@ -829,25 +965,21 @@
 
         function createInvoice() {
             const s = students.find(st => st.id === currentStudentId);
-            const desc = document.getElementById('inv-desc').value; // Title
+            const desc = document.getElementById('inv-desc').value;
             const sessCount = parseInt(document.getElementById('inv-sessions').value) || 0;
             const extra = parseInt(document.getElementById('inv-extra').value) || 0;
-            const total = s.rate + extra; // Fixed Rate Calculation
+            const total = s.rate + extra;
             
-            // Calculate Period Dates for Line Item
             const startDate = s.nextBillingDate ? new Date(s.nextBillingDate) : new Date();
-            
-            // Calculate Next Cycle Start
             const nextCycleStart = new Date(startDate);
+            
             if(s.billingFreq === 'Weekly') nextCycleStart.setDate(nextCycleStart.getDate() + 7);
             else if(s.billingFreq === 'Daily') nextCycleStart.setDate(nextCycleStart.getDate() + 1);
-            else nextCycleStart.setMonth(nextCycleStart.getMonth() + 1); // Monthly
+            else nextCycleStart.setMonth(nextCycleStart.getMonth() + 1); 
             
-            // Calculate Display End Date
             const displayEndDate = new Date(nextCycleStart);
             displayEndDate.setDate(displayEndDate.getDate() - 1);
             
-            // Format dates
             const startStr = startDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
             const endStr = displayEndDate.toLocaleDateString('en-IN', {day:'numeric', month:'short'});
             const lineItemDesc = `${s.billingFreq || 'Monthly'} Fees: ${startStr} to ${endStr} (${sessCount} Sessions)`;
@@ -864,12 +996,11 @@
             
             if(!s.invoices) s.invoices = [];
             s.invoices.push(newInv);
-            
-            // Update Next Billing Date to prevent drift (always use calculated Next Cycle Start)
             s.nextBillingDate = nextCycleStart.toISOString();
 
             save();
             closeModal('generate-invoice-modal');
+            showToast("Invoice Generated!");
             viewDocument(newInv.id); 
             renderDetails();
         }
@@ -898,7 +1029,6 @@
                 btnRemind.classList.add('hidden');
             }
 
-            // Edit allowed anytime, Delete allowed if paid/receipt
             btnEdit.classList.remove('hidden');
             if(isPaid) btnDelete.classList.remove('hidden'); else btnDelete.classList.add('hidden');
         }
@@ -924,7 +1054,6 @@
             inv.total = parseFloat(document.getElementById('edit-inv-total').value);
             inv.remarks = document.getElementById('edit-inv-remark').value;
             
-            // Recalculate Status based on new total
             const paid = inv.amountPaid || 0;
             if (paid >= inv.total) inv.status = 'paid';
             else if (paid > 0) inv.status = 'partial';
@@ -932,13 +1061,13 @@
 
             save();
             closeModal('edit-invoice-modal');
-            viewDocument(currentInvoiceId); // Refresh view
+            showToast("Invoice Updated");
+            viewDocument(currentInvoiceId);
             renderDetails();
         }
 
         function renderDoc(data) {
             document.getElementById('doc-title').innerText = data.title;
-            // Handle ID safely
             document.getElementById('doc-id').innerText = data.inv.id;
             document.getElementById('doc-date').innerText = new Date(data.inv.date).toLocaleDateString('en-IN');
             
@@ -950,7 +1079,7 @@
             tbody.innerHTML = '';
 
             data.items.forEach(i => { 
-                tbody.innerHTML += `<br>                <tr class="border-b border-slate-50"><br>                    <td class="py-3">${i.desc}</td><br>                    <td class="py-3 text-xs text-slate-400"></td> <br>                    <td class="py-3 text-right">${typeof i.amount === 'number' ? format(i.amount, data.currency || data.student.currency) : ''}</td><br>                </tr>`; 
+                tbody.innerHTML += `<tr class="border-b border-slate-50"><td class="py-3">${i.desc}</td><td class="py-3 text-xs text-slate-400"></td> <td class="py-3 text-right">${typeof i.amount === 'number' ? format(i.amount, data.currency || data.student.currency) : ''}</td></tr>`; 
             });
             
             const totalText = typeof data.total === 'number' ? format(data.total, data.currency || data.student.currency) : '';
@@ -978,7 +1107,6 @@
             const docSubtitle = document.getElementById('doc-subtitle');
             const remarkBox = document.getElementById('doc-remark-box');
             
-            // Remark Display
             if(data.remarks) {
                 document.getElementById('doc-remark-text').innerText = data.remarks;
                 remarkBox.classList.remove('hidden');
@@ -998,13 +1126,12 @@
         }
 
         function deleteCurrentInvoice() {
-            if(confirm("Delete this receipt? This action cannot be undone.")) {
-                const s = students.find(st => st.id === currentStudentId);
-                s.invoices = s.invoices.filter(i => i.id !== currentInvoiceId);
-                save();
-                closeDoc();
-                renderDetails();
-            }
+            const s = students.find(st => st.id === currentStudentId);
+            s.invoices = s.invoices.filter(i => i.id !== currentInvoiceId);
+            save();
+            closeDoc();
+            showToast("Receipt deleted.");
+            renderDetails();
         }
 
         function openPaymentModal() {
@@ -1028,7 +1155,7 @@
                 if(!inv.txnDetails) inv.txnDetails = [];
                 inv.txnDetails.push({ amount, mode, id: tid, date });
                 if(inv.amountPaid >= inv.total) inv.status = 'paid'; else inv.status = 'partial';
-                save(); closeModal('payment-modal'); viewDocument(currentInvoiceId); renderDetails();
+                save(); closeModal('payment-modal'); showToast("Payment recorded!"); viewDocument(currentInvoiceId); renderDetails();
             }
         }
 
@@ -1037,11 +1164,8 @@
             const s = currentDocData.student;
             const inv = currentDocData.inv;
             
-            // Increment Reminder Count
             inv.reminders = (inv.reminders || 0) + 1;
             save();
-            
-            // Refresh Button Text
             document.getElementById('btn-reminder').innerText = `Send Reminder ${inv.reminders + 1}`;
 
             const pending = inv.total - (inv.amountPaid || 0);
@@ -1077,7 +1201,7 @@
             const list = document.getElementById('currency-list'); list.innerHTML='';
             Object.entries(settings.currencies).forEach(([c,r])=>{ 
                 if(c!=='INR') {
-                    list.innerHTML+=`<br>                    <div class="flex justify-between items-center p-2 bg-slate-50 text-sm rounded-lg"><br>                        <span class="font-bold w-12">${c}</span><br>                        <div class="flex items-center gap-2"><br>                            <input type="number" value="${r}" onchange="updateRate('${c}', this.value)" class="w-20 p-1 border rounded text-center font-bold"><br>                            <span class="text-xs text-slate-400">INR</span><br>                            <button onclick="delete settings.currencies['${c}']; saveSettings(); renderCurrencyList()" class="text-red-400 font-bold ml-2">×</button><br>                        </div><br>                    </div>`;
+                    list.innerHTML+=`<div class="flex justify-between items-center p-2 bg-slate-50 text-sm rounded-lg"><span class="font-bold w-12">${c}</span><div class="flex items-center gap-2"><input type="number" value="${r}" onchange="updateRate('${c}', this.value)" class="w-20 p-1 border rounded text-center font-bold"><span class="text-xs text-slate-400">INR</span><button onclick="delete settings.currencies['${c}']; saveSettings(); renderCurrencyList()" class="text-red-400 font-bold ml-2">×</button></div></div>`;
                 }
             });
         }
@@ -1086,7 +1210,7 @@
             if(newRate) {
                 settings.currencies[code] = parseFloat(newRate);
                 saveSettings();
-                renderHome(); // Update total pending calculations
+                renderHome();
             }
         }
 
@@ -1100,23 +1224,17 @@
                 const nextBilling = startDateStr ? new Date(startDateStr).toISOString() : new Date().toISOString();
                 students.push({
                     id: newId, name, grade: document.getElementById('new-grade').value,
-                    parent: document.getElementById('new-parent').value,
-                    phone: document.getElementById('new-phone').value,
+                    parent: document.getElementById('new-parent').value, phone: document.getElementById('new-phone').value,
                     rate: parseInt(rate), currency: document.getElementById('new-currency').value,
                     startDate: startDateStr, totalSessions: document.getElementById('new-total-sessions').value,
-                    billingFreq: document.getElementById('new-billing-freq').value,
-                    nextBillingDate: nextBilling, invoices: []
+                    billingFreq: document.getElementById('new-billing-freq').value, nextBillingDate: nextBilling,
+                    isActive: true, invoices: [] // Added isActive flag explicitly
                 });
-                save(); closeModal('add-student-modal');
+                save(); closeModal('add-student-modal'); showToast("Student Added!");
                 currentStudentId = newId; setTimeout(openGenerateInvoiceModal, 300);
             }
         }
-        function deleteStudent() { 
-            const s = students.find(st => st.id === currentStudentId);
-            students = students.filter(s => s.id !== currentStudentId); 
-            save(); 
-            showHome(); 
-        }
+        
         function closeModal(id) { document.getElementById(id).classList.replace('flex', 'hidden'); }
         function closeDoc() { document.getElementById('doc-modal').classList.add('hidden'); }
         function addCurrency() { const c = document.getElementById('add-curr-code').value.toUpperCase(); const r = document.getElementById('add-curr-rate').value; if(c&&r) { settings.currencies[c]=parseFloat(r); saveSettings(); renderCurrencyList(); document.getElementById('add-curr-code').value=''; } }
@@ -1126,8 +1244,9 @@
             document.getElementById('new-start-date').valueAsDate = new Date();
             document.getElementById('add-student-modal').classList.replace('hidden','flex');
         }
-        function saveBankDetails() { settings.bankDetails = document.getElementById('setting-bank-details').value; saveSettings(); alert('Saved'); }
+        function saveBankDetails() { settings.bankDetails = document.getElementById('setting-bank-details').value; saveSettings(); showToast('Payment Details Saved!'); }
 
+        // Start
         renderHome();
         renderLogo(); 
     </script>
